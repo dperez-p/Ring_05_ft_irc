@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/16 12:08:30 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/20 12:38:36 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,10 +72,11 @@ void	Server::acceptNewClient()
 	struct	pollfd newPoll;
 	socklen_t	len = sizeof(cliadd);
 
-	int	incfd = accept(_serSocketFd, (sockaddr *)&(cliadd), &len); // accept the new client
+	int	incfd = accept(_serSocketFd, (sockaddr *)&(cliadd), &len); // accept the new client and register it to the kernel process
 	if (incfd == -1)
 	{
 		std::cout << "accept() failed" << std::endl;
+		close(incfd); // release the kernel resource
 		return ;
 	}
 	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option fiir bib-blocking socket
@@ -107,14 +108,15 @@ void	Server::recieveNewData(int fd)
 		std::cout << "Client " << fd << "disconnected." << std::endl;
 		clearClients(fd); // clear the client
 		close(fd);
+		return ;
 	}
+	Client &cli = SEARCH THE CLIENT from the fd to assign the buffer.
 	else // print the recieved data
 	{
 		buff[bytes] = '\0';
 		std::cout << "Client <" << fd << "> data " << buff;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
-
 }
 
 // server socket creation.

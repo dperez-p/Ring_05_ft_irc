@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/16 09:54:24 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/20 13:16:00 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,49 @@
 
 // Default constructor
 Client::Client()
-{};
+{
+	this->_nickname = "";
+	this->_username = "";
+	this->_fd = -1;
+	this->_isOperator = false;
+	this->_registered = false;
+	this->_recvBuffer = "";
+	this->_ipadd = "";
+	this->_loged = false;
+};
+
+Client::Client(std::string nickname, std::string username, int fd)
+{
+	this->_nickname = nickname;
+	this->_username = username;
+	this->_fd = fd;
+	this->_isOperator = false;
+	this->_registered = false;
+	this->_recvBuffer = "";
+	this->_ipadd = "";
+	this->_loged = false;
+}
+
+Client::Client(Client const &oth)
+{
+	*this = oth;
+}
+
+Client& Client::operator=(Client const &oth)
+{
+	if (this != &oth)
+	{
+		this->_nickname = oth._nickname;
+		this->_username = oth._username;
+		this->_fd = oth._fd;
+		this->_isOperator = oth._isOperator;
+		this->_registered = oth._registered;
+		this->_recvBuffer = oth._recvBuffer;
+		this->_loged = oth._loged;
+		this->_ipadd = oth._ipadd;
+	}
+	return (*this);
+}
 
 // get client _fd
 int	Client::getFd()

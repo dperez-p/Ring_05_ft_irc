@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/08/10 11:03:12 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/20 12:48:58 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,23 @@
 class Client
 {
 private:
+	std::string	_nickname; // user nickname
+	std::string	_username; // username
+	bool		_isOperator; // is operator (mod for the channel)
+	bool		_registered; // is registered
+	bool		_loged; // is loged
 	int	_fd; //client file descriptor
 	std::string _ipadd; //client ip address
+	std::string _recvBuffer; // client buffer
 public:
 	Client(); // default constr
+	Client(std::string nickname, std::string username, int fd); // argu constr
+	Client(Client const &oth); // copy construct
+	Client &operator=(Client const &other); // assignment operator
+	~Client(); // desctruct
+
 	int	getFd(); // getter for fd
 
 	void	setFd(int fd); // set fd
 	void	setIpAdd(std::string ipadd);
-	~Client();
 };
