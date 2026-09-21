@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/16 11:30:02 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/21 18:29:28 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@
 #include <csignal> //for signal()
 #include <cstring>
 
+class Client;
+class Channel;
+
 class Server
 {
 	private:
@@ -31,10 +34,16 @@ class Server
 		int	_serSocketFd; // server socket file descriptor
 		static bool	_signal; // boolean for signal, static to create one for the class and not for each object
 		std::vector<Client> _clients; // vector of clients
+		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
+		std::string _password;
+
 
 	public:
 		Server();
+		Server(Server const &oth);
+		Server &operator=(Server const & oth);
+		~Server();
 
 		void	serverInit(); // server initialization
 		void	serSocket(); // server socket creation

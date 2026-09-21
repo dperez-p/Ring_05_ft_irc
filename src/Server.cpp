@@ -6,20 +6,41 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 12:38:36 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/21 18:27:58 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-// static bool init
-bool	Server::_signal = false;
-
-// Default constructor
 Server::Server()
 {
-	_serSocketFd = -1;
+	this->_serSocketFd = -1;
 }
+
+Server::~Server()
+{}
+
+Server::Server(Server const &oth)
+{
+	*this = oth;
+}
+
+Server &Server::operator=(Server const &oth)
+{
+	if (this != &oth)
+	{
+		this->_port = oth._port;
+		this->_serSocketFd = oth._serSocketFd;
+		this->_password = oth._password;
+		this->_clients = oth._clients;
+		this->_channel = oth._channel;
+		this->_fds = oth._fds;
+	}
+	return (*this);
+}
+
+// static bool init
+bool	Server::_signal = false;
 
 void	Server::signalHandler(int signum)
 {
