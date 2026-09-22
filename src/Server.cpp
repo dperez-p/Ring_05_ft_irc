@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/21 18:27:58 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/22 13:50:05 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,9 +180,10 @@ void	Server::serSocket()
 }
 
 // server init.
-void	Server::serverInit()
+void	Server::serverInit(int port, const std::string password)
 {
-	this->_port = 4444;
+	_port = port;
+	_password = password;
 	serSocket(); // create the server socket
 
 	std::cout << "Server: " << _serSocketFd << " connected." << std::endl;

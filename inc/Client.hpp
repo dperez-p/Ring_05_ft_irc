@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 12:48:58 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/22 13:39:25 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ private:
 	bool		_isOperator; // is operator (mod for the channel)
 	bool		_registered; // is registered
 	bool		_loged; // is loged
-	int	_fd; //client file descriptor
+	int	_fd;	//client file descriptor
 	std::string _ipadd; //client ip address
 	std::string _recvBuffer; // client buffer
 public:

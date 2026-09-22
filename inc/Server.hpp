@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/21 18:29:28 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/22 13:27:20 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Server
 		Server &operator=(Server const & oth);
 		~Server();
 
-		void	serverInit(); // server initialization
+		void	serverInit(int port, const std::string password); // server initialization
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client
 		void	recieveNewData(int fd); // recieve new data from a registered client
