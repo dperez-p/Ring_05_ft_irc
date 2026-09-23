@@ -131,7 +131,7 @@ void	Server::recieveNewData(int fd)
 		close(fd);
 		return ;
 	}
-	Client &cli = SEARCH THE CLIENT from the fd to assign the buffer.
+	// SEARCH THE CLIENT from the fd to assign the buffer.
 	else // print the recieved data
 	{
 		buff[bytes] = '\0';

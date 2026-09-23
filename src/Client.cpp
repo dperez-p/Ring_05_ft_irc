@@ -64,6 +64,11 @@ int	Client::getFd()
 	return (_fd);
 }
 
+std::string	Client::getUsername()
+{
+	return (_username);
+}
+
 // set client _fd
 void	Client::setFd(int	fd)
 {
