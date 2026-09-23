@@ -39,6 +39,25 @@ Server &Server::operator=(Server const &oth)
 	return (*this);
 }
 
+/********************************************** Getters *****************************************/
+int	Server::getSerSocketFd()
+{
+	return (_serSocketFd);
+}
+
+//Get client Fd from the server vector
+Client* Server::getClient(int fd)
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (_clients[i].getFd() == fd)
+		{
+			return &_clients[i];
+		}
+	}
+	return NULL;
+}
+
 // static bool init
 bool	Server::_signal = false;
 
@@ -121,7 +140,7 @@ void	Server::recieveNewData(int fd)
 {
 	char	buff[1024]; // buffer for the data
 	memset(buff, 0, sizeof(buff)); // clear the buffer
-
+	Client* actualClient = getClient(fd);
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // recive the data
 
 	if (bytes <= 0) // check if the client disconnected
@@ -131,9 +150,12 @@ void	Server::recieveNewData(int fd)
 		close(fd);
 		return ;
 	}
-	Client &cli = SEARCH THE CLIENT from the fd to assign the buffer.
 	else // print the recieved data
 	{
+		actualClient->setBuffer(buff);
+		if (actualClient->getBuffer().find_first_of("\r\n") == std::string::npos)
+			return ;
+		std::string cmd = actualClient.splitBuffer();
 		buff[bytes] = '\0';
 		std::cout << "Client <" << fd << "> data " << buff;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
