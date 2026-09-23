@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 13:16:00 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/23 20:06:28 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,13 @@ Client& Client::operator=(Client const &oth)
 }
 /*********************************Getters*************************************** */
 // get client _fd
-int	const Client::getFd() const
+int Client::getFd() const
 {
 	return (_fd);
 }
 
 //Return the client buffer
-std::string  Client::getBuffer() const
+const std::string&  Client::getBuffer() const
 {
 	return (_recvBuffer);
 }
@@ -91,10 +91,34 @@ void	Client::setBuffer(std::string buff)
 	_recvBuffer += buff;
 }
 
-std::vector<string> Client::splitBuffer()
+// split the buffer and erase it
+std::vector<std::string> Client::splitBuffer()
 {
-	std::vector<std::string> line; 
-	
-
-	return ()
+	std::vector<std::string> lines;
+	size_t pos;
+	//Find the delimiter and extract the line, then erase it
+	while ((pos = _recvBuffer.find_first_of("\r\n")) != std::string::npos)
+	{
+		//EDGE CASE if we found '\r' at the very end of the buffer, wait for potential '\n' in next recv
+		if (_recvBuffer[pos] == '\r' && pos + 1 == _recvBuffer.size())
+		{
+			break; // Stop parsing for now, wait for more data
+		}
+		std::string	line = _recvBuffer.substr(0, pos);
+		if (!line.empty())
+		{
+			lines.push_back(line);
+		}
+		// check the size then check bot \r && \n to erase it
+		if (pos + 1 < _recvBuffer.size() && _recvBuffer[pos] == '\r' &&  _recvBuffer[pos + 1] == '\n' )
+		{
+			_recvBuffer.erase(0, pos + 2);
+		}
+		// erase until \n
+		else
+		{
+			_recvBuffer.erase(0, pos + 1);
+		}
+	}
+	return lines;
 }
