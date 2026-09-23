@@ -57,13 +57,22 @@ Client& Client::operator=(Client const &oth)
 	}
 	return (*this);
 }
-
+/*********************************Getters*************************************** */
 // get client _fd
-int	Client::getFd()
+int	const Client::getFd() const
 {
 	return (_fd);
 }
 
+//Return the client buffer
+std::string  Client::getBuffer() const
+{
+	return (_recvBuffer);
+}
+
+
+
+/**********************************Setters***********************8 */
 // set client _fd
 void	Client::setFd(int	fd)
 {
@@ -74,4 +83,18 @@ void	Client::setFd(int	fd)
 void	Client::setIpAdd(std::string ipadd)
 {
 	_ipadd = ipadd;
+}
+
+// add to the current client buffer.
+void	Client::setBuffer(std::string buff)
+{
+	_recvBuffer += buff;
+}
+
+std::vector<string> Client::splitBuffer()
+{
+	std::vector<std::string> line; 
+	
+
+	return ()
 }

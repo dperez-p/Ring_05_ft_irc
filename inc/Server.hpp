@@ -24,6 +24,7 @@
 #include <csignal> //for signal()
 #include <cstring>
 
+
 class Client;
 class Channel;
 
@@ -54,4 +55,8 @@ class Server
 
 		void	closeFds(); // close file descriptors
 		void	clearClients(int fd); // clear clients
+
+		// GETTERS
+		int	getSerSocketFd();
+		Client* getClient(int fd);
 };
