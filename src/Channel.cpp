@@ -109,20 +109,14 @@ void	Channel::setLimit(int limit)
 // mode 'o'
 void	Channel::changeOperatorStatus(Client& client)
 {
-	bool inList = false;
-	// check if client is in channel
-	for (int i = 0; i < (int)_clients.size() && !inList; i++)
-	{
-		if (_clients[i]->getNick() == client.getNick())
-			inList = true;
-	}
-	if (!inList)
+	if (!client.inChannel(*this))
 	{
 		std::cout << "Client not in channel." << std::endl;
 		return ;
 	}
 
 	// check if client in operators
+	bool inList = false;
 	int i = 0;
 	for (; i < (int)_operators.size() && !inList; i++)
 	{
@@ -134,4 +128,42 @@ void	Channel::changeOperatorStatus(Client& client)
 		_operators.erase(_operators.begin() + i);
 	else
 		_operators.push_back(&client);
+}
+
+std::vector<Client*>	Channel::getOperators() const
+{
+	return _operators;
+}
+
+std::vector<Client*>	Channel::getClients() const
+{
+	return _clients;
+}
+
+std::vector<Client*>	Channel::getInvites() const
+{
+	return _invited;
+}
+
+bool	Channel::isInviteOnly() const
+{
+	return _inviteOnly;
+}
+
+void	Channel::addClient(Client& client)
+{
+	if (_clients.size() == 0)
+	{
+		_clients.push_back(&client);
+		_operators.push_back(&client);
+	}
+	else if (_inviteOnly && client.isInvited(*this))
+	{
+		_clients.push_back(&client);
+		// TODO: remove client from invites list!
+	}
+	else if (!_inviteOnly)
+	{
+		_clients.push_back(&client);
+	}
 }

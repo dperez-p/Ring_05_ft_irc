@@ -47,5 +47,6 @@ class Client
 		void	setIpAdd(std::string ipadd);
 
 		bool	isOperator(const Channel& channel) const;
-		void	join(Channel& channel) const;
+		bool	inChannel(const Channel& channel) const;
+		bool	isInvited(const Channel& channel) const;
 };

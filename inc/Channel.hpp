@@ -26,13 +26,20 @@ class Channel
 	// For channel operators:
 		void	kick(const std::string& uname, const std::string& comment);
 		void	invite(Client& Client);
-		std::string	getTopic() const;
 		void	setTopic(const std::string& topic);
 		void	setInvite(const bool value);
 		void	setTopicLock(const bool value);
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);
 		void	changeOperatorStatus(Client& client);
+		
+		std::string	getTopic() const;
+		std::vector<Client*>	getOperators() const;
+		std::vector<Client*>	getClients() const;
+		std::vector<Client*>	getInvites() const;
+		bool	isInviteOnly() const;
+
+		void	addClient(Client& client);
 };
 
 

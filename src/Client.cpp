@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 // Default constructor
 Client::Client()
@@ -18,11 +19,10 @@ Client::Client()
 	this->_nickname = "";
 	this->_username = "";
 	this->_fd = -1;
-	this->_isOperator = false;
 	this->_registered = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
-	this->_loged = false;
+	this->_logged = false;
 };
 
 Client::Client(std::string nickname, std::string username, int fd)
@@ -30,11 +30,10 @@ Client::Client(std::string nickname, std::string username, int fd)
 	this->_nickname = nickname;
 	this->_username = username;
 	this->_fd = fd;
-	this->_isOperator = false;
 	this->_registered = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
-	this->_loged = false;
+	this->_logged = false;
 }
 
 Client::Client(Client const &oth)
@@ -49,10 +48,9 @@ Client& Client::operator=(Client const &oth)
 		this->_nickname = oth._nickname;
 		this->_username = oth._username;
 		this->_fd = oth._fd;
-		this->_isOperator = oth._isOperator;
 		this->_registered = oth._registered;
 		this->_recvBuffer = oth._recvBuffer;
-		this->_loged = oth._loged;
+		this->_logged = oth._logged;
 		this->_ipadd = oth._ipadd;
 	}
 	return (*this);
@@ -81,8 +79,37 @@ void	Client::setIpAdd(std::string ipadd)
 	_ipadd = ipadd;
 }
 
-bool	isOperator(const Channel& channel) const
+bool	Client::isOperator(const Channel& channel) const
 {
-	
+	std::vector<Client*> opts = channel.getOperators();
+
+	for (int i = 0; i < (int)opts.size(); i++)
+	{
+		if (opts[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
 }
-void	join(Channel& channel) const;
+
+bool	Client::inChannel(const Channel& channel) const
+{
+	std::vector<Client*> clients = channel.getClients();
+
+	for (int i = 0; i < (int)clients.size(); i++)
+	{
+		if (clients[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
+}
+
+bool	Client::isInvited(const Channel& channel) const
+{
+	std::vector<Client*> invites = channel.getInvites();
+	for (int i = 0; i < (int)invites.size(); i++)
+	{
+		if (invites[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
+}
