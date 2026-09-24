@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/22 13:27:20 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/23 19:36:53 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <arpa/inet.h> // for inet_ntoa()
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
+#include <sstream>
 #include <cstring>
 
 
@@ -59,4 +60,5 @@ class Server
 		// GETTERS
 		int	getSerSocketFd();
 		Client* getClient(int fd);
+
 };

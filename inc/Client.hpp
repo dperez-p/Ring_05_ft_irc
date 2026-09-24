@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/22 13:39:25 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/23 19:35:51 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <arpa/inet.h> // for inet_ntoa()
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
+#include "Server.hpp"
 
 class Client
 {
@@ -40,16 +41,15 @@ public:
 	Client(Client const &oth); // copy construct
 	Client &operator=(Client const &other); // assignment operator
 	~Client(); // desctruct
-	
+
 	void	setFd(int fd); // set fd
 	void	setIpAdd(std::string ipadd);
-	
+
 	/************************Getter*************************** */
-	int	getFd(); // getter for fd
-	std::string getBuffer();
+	int	getFd() const; // getter for fd
+	const std::string& getBuffer() const;
 	/***************************Setter******************************* */
 	void	setBuffer(std::string bytes);
-
-	/***************************Parsing****************************** */
-	std::vector<string>	splitBuffer();
+	/*******************PARSE*************************** */
+	std::vector<std::string>	splitBuffer();
 };

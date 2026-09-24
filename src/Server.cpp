@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/22 13:50:05 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/23 19:29:08 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,7 +155,7 @@ void	Server::recieveNewData(int fd)
 		actualClient->setBuffer(buff);
 		if (actualClient->getBuffer().find_first_of("\r\n") == std::string::npos)
 			return ;
-		std::string cmd = actualClient.splitBuffer();
+		std::vector<std::string> commands = actualClient->splitBuffer();
 		buff[bytes] = '\0';
 		std::cout << "Client <" << fd << "> data " << buff;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
