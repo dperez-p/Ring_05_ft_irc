@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:29 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/24 14:18:53 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ bool	Server::_signal = false;
 void	Server::signalHandler(int signum)
 {
 	(void) signum;
-	std::cout << std::endl << "Signal received correctly!" << std::endl;
 	Server::_signal = true; // set signal to true to stop the server.
 }
 
@@ -116,12 +115,13 @@ void	Server::acceptNewClient()
 	if (incfd == -1)
 	{
 		std::cout << "accept() failed" << std::endl;
-		close(incfd); // release the kernel resource
 		return ;
 	}
 	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option fiir bib-blocking socket
 	{
 		std::cout << "fcntl() failed" << std::endl;
+		close(incfd); // release the kernel resource
+		return ;
 	}
 	newPoll.fd = incfd; // add the client socket to the pollfd
 	newPoll.events = POLLIN; // set the event to POLLIN for reading data
@@ -141,6 +141,10 @@ void	Server::recieveNewData(int fd)
 	char	buff[1024]; // buffer for the data
 	memset(buff, 0, sizeof(buff)); // clear the buffer
 	Client* actualClient = getClient(fd);
+	if (!actualClient) // if fd is not found
+	{
+		return ;
+	}
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // recive the data
 
 	if (bytes <= 0) // check if the client disconnected
@@ -226,10 +230,19 @@ void	Server::serverInit(int port, const std::string password)
 				}
 				else
 				{
+					size_t	sizePreData = _fds.size(); // control the size after the data.
 					recieveNewData(_fds[i].fd);
+					if (_fds.size() < sizePreData) // if one client was removed, don't skip the next fd
+					{
+						i--;
+					}
 				}
 			}
 		}
+	}
+	if (Server::_signal == true)
+	{
+		std::cout << std::endl << "Signal received correctly!" << std::endl;
 	}
 	closeFds(); // close the file descriptors when the server stops
 }
