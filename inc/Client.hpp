@@ -22,14 +22,14 @@
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
 
+class	Channel;
 class Client
 {
 	private:
 		std::string	_nickname; // user nickname
 		std::string	_username; // username
-		bool		_isOperator; // is operator (mod for the channel)
 		bool		_registered; // is registered
-		bool		_loged; // is loged
+		bool		_logged; // is logged
 		int	_fd;	//client file descriptor
 		std::string _ipadd; //client ip address
 		std::string _recvBuffer; // client buffer
@@ -40,9 +40,12 @@ class Client
 		Client &operator=(Client const &other); // assignment operator
 		~Client(); // desctruct
 
-		int	getFd(); // getter for fd
-		std::string	getUsername();
+		int	getFd() const; // getter for fd
+		std::string	getNick() const;
 
 		void	setFd(int fd); // set fd
 		void	setIpAdd(std::string ipadd);
+
+		bool	isOperator(const Channel& channel) const;
+		void	join(Channel& channel) const;
 };

@@ -10,8 +10,9 @@ class Channel
 		std::string	_name;
 		std::string	_topic;
 		std::string	_key ;
-		std::vector<Client *>	_clients;
-		// TODO: initialize _clients in constructors!!
+		std::vector<Client*>	_clients;
+		std::vector<Client*>	_invited;
+		std::vector<Client*>	_operators;
 
 	public:
 	// OCF:
@@ -24,10 +25,14 @@ class Channel
 	
 	// For channel operators:
 		void	kick(const std::string& uname, const std::string& comment);
-		void	invite(const Client& Client);
-		std::string	getTopic();
+		void	invite(Client& Client);
+		std::string	getTopic() const;
 		void	setTopic(const std::string& topic);
-		void	setMode(char mode);
+		void	setInvite(const bool value);
+		void	setTopicLock(const bool value);
+		void	setKey(const std::string newkey);
+		void	setLimit(int limit);
+		void	changeOperatorStatus(Client& client);
 };
 
 

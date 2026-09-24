@@ -59,14 +59,14 @@ Client& Client::operator=(Client const &oth)
 }
 
 // get client _fd
-int	Client::getFd()
+int	Client::getFd() const
 {
 	return (_fd);
 }
 
-std::string	Client::getUsername()
+std::string	Client::getNick() const
 {
-	return (_username);
+	return (_nickname);
 }
 
 // set client _fd
@@ -80,3 +80,9 @@ void	Client::setIpAdd(std::string ipadd)
 {
 	_ipadd = ipadd;
 }
+
+bool	isOperator(const Channel& channel) const
+{
+	
+}
+void	join(Channel& channel) const;
