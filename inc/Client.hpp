@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/23 19:35:51 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/24 13:32:14 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ public:
 	int	getFd() const; // getter for fd
 	const std::string& getBuffer() const;
 	/***************************Setter******************************* */
-	void	setBuffer(std::string bytes);
+	void	appendBuffer(std::string bytes);
 	/*******************PARSE*************************** */
 	std::vector<std::string>	splitBuffer();
 };

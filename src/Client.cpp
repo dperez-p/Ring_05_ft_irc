@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/23 20:06:28 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	Client::setIpAdd(std::string ipadd)
 }
 
 // add to the current client buffer.
-void	Client::setBuffer(std::string buff)
+void	Client::appendBuffer(std::string buff)
 {
 	_recvBuffer += buff;
 }
