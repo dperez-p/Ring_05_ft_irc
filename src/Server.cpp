@@ -3,14 +3,76 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 12:38:36 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/27 21:48:51 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Message.hpp"
+#include "Client.hpp"
+
+
+Server::Server()
+{
+	this->_serSocketFd = -1;
+	_cmds["PASS"] = &Server::cmdPass;
+	_cmds["NICK"] = &Server::cmdNick;
+	/*
+	_cmds["USER"] = &Server::cmd
+	_cmds["QUIT"] = &Server::cmd
+	_cmds["JOIN"] = &Server::cmd
+	_cmds["PART"] = &Server::cmd
+	_cmds["PRIVMSG"] = &Server::cmd
+	_cmds["TOPIC"] = &Server::cmd
+	_cmds["KICK"] = &Server::cmd
+	_cmds["MODE"] = &Server::cmd
+	_cmds["INVITE"] = &Server::cmd
+	*/
+}
+
+Server::~Server()
+{}
+
+Server::Server(Server const &oth)
+{
+	*this = oth;
+}
+
+Server &Server::operator=(Server const &oth)
+{
+	if (this != &oth)
+	{
+		this->_port = oth._port;
+		this->_serSocketFd = oth._serSocketFd;
+		this->_password = oth._password;
+		this->_clients = oth._clients;
+		this->_channel = oth._channel;
+		this->_fds = oth._fds;
+	}
+	return (*this);
+}
+
+/********************************************** Getters *****************************************/
+int	Server::getSerSocketFd()
+{
+	return (_serSocketFd);
+}
+
+//Get client Fd from the server vector
+Client* Server::getClient(int fd)
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (_clients[i].getFd() == fd)
+		{
+			return &_clients[i];
+		}
+	}
+	return NULL;
+}
 
 // static bool init
 bool	Server::_signal = false;
@@ -95,14 +157,29 @@ void	Server::acceptNewClient()
 	std::cout << "Client <" << incfd << "> Connected" << std::endl;
 }
 
+void	Server::executeCommand(Client& client, const Message& msg)
+{
+	if (_cmds.find(msg.getCmd()) == _cmds.end())
+	{
+		
+	}	
+	if (msg.getCmd() == "PASS" || msg.getCmd() == "NICK" || msg.getCmd() == "USER")
+		_cmds[]
+	else
+	{
+		if (!client.isRegistred())
+			_cmds[]
+	}
+}
+
 // New data management
 void	Server::recieveNewData(int fd)
 {
 	char	buff[1024]; // buffer for the data
-	memset(buff, 0, sizeof(buff)); // clear the buffer
-
+	// memset(buff, 0, sizeof(buff)); // clear the buffer
+	Client* actualClient = getClient(fd);
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // recive the data
-
+	
 	if (bytes <= 0) // check if the client disconnected
 	{
 		std::cout << "Client " << fd << "disconnected." << std::endl;
@@ -110,11 +187,22 @@ void	Server::recieveNewData(int fd)
 		close(fd);
 		return ;
 	}
-	Client &cli = SEARCH THE CLIENT from the fd to assign the buffer.
 	else // print the recieved data
 	{
-		buff[bytes] = '\0';
-		std::cout << "Client <" << fd << "> data " << buff;
+		std::string	chunk(buff, bytes); // Avoiding '\0 cut' with overload
+		actualClient->setBuffer(chunk);
+		std::vector<std::string> lines = actualClient->splitBuffer();
+		if(actualClient->getBuffer().size() >= 512)
+			actualClient->clearBuffer();
+		for (int i = 0; i < lines.size(); i++)
+		{
+			Message Current(lines[i]);
+			executeCommand(*actualClient, Current);
+			
+		}
+			
+			
+		//std::cout << "Client <" << fd << "> data " << buff;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
 }
@@ -159,7 +247,7 @@ void	Server::serSocket()
 }
 
 // server init.
-void	Server::serverInit()
+void	Server::serverInit(int port, const std::string password)
 {
 	this->_port = 4444;
 	serSocket(); // create the server socket

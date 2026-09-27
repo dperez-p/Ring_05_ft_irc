@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 13:16:00 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/27 21:42:55 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Client::Client()
 	this->_recvBuffer = "";
 	this->_ipadd = "";
 	this->_loged = false;
-};
+}
 
 Client::Client(std::string nickname, std::string username, int fd)
 {
@@ -74,4 +74,33 @@ void	Client::setFd(int	fd)
 void	Client::setIpAdd(std::string ipadd)
 {
 	_ipadd = ipadd;
+}
+
+// add to the current client buffer.
+void	Client::setBuffer(std::string buff)
+{
+	_recvBuffer += buff;
+}
+
+std::vector<std::string> Client::splitBuffer()
+{
+	std::vector<std::string> lines; 
+	std::size_t pos;
+	
+	pos = _recvBuffer.find('\n');
+	while (pos != std::string::npos)
+	{
+		std::string	line = _recvBuffer.substr(0, pos);
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+		lines.push_back(line);
+		_recvBuffer.erase(0, pos + 1);
+		pos = _recvBuffer.find('\n');
+	}
+	return (lines);
+}
+
+void	Client::clearBuffer()
+{
+	_recvBuffer.clear();
 }

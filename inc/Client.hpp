@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/20 12:48:58 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/27 21:43:54 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,18 @@ public:
 	Client(Client const &oth); // copy construct
 	Client &operator=(Client const &other); // assignment operator
 	~Client(); // desctruct
+	
+	
+	void							setFd(int fd); // set fd
+	void							setIpAdd(std::string ipadd);
+	
+	/************************Getter*************************** */
+	int const						getFd() const; // getter for fd
+	std::string 					getBuffer() const;
+	/***************************Setter******************************* */
+	void							setBuffer(std::string bytes);
 
-	int	getFd(); // getter for fd
-
-	void	setFd(int fd); // set fd
-	void	setIpAdd(std::string ipadd);
+	/***************************Parsing****************************** */
+	std::vector<std::string>		splitBuffer();
+	void							clearBuffer();
 };
