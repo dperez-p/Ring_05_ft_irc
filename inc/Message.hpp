@@ -20,7 +20,7 @@ class Message
     private:
         std::string                 _cmd;
         std::vector<std::string>    _params;
-        
+
     public:
         Message(std::string);
         Message(const Message& other);
@@ -30,5 +30,5 @@ class Message
         //----------------getters----------------------
         std::string                 getCmd()    const;
         std::vector<std::string>    getParam()  const;
-        
+
 };

@@ -13,7 +13,7 @@
 #include "Server.hpp"
 #include "Message.hpp"
 #include "Client.hpp"
-
+#include "Replies.hpp"
 
 Server::Server()
 {
@@ -72,6 +72,11 @@ Client* Server::getClient(int fd)
 		}
 	}
 	return NULL;
+}
+
+std::string	Server::getPass() const
+{
+	return _password;
 }
 
 // static bool init
@@ -157,14 +162,47 @@ void	Server::acceptNewClient()
 	std::cout << "Client <" << incfd << "> Connected" << std::endl;
 }
 
+void	Server::cmdPass(Client& client, const Message& msg)
+{
+	if (client.getLoged())
+		return ;
+	if (msg.getParam()[0].empty())
+		insParams(client.getNick(), msg.getCmd());
+	else
+	{
+		if (msg.getParam()[0] == _password)
+			client.setLoged(true);
+		else
+			paswdMiss(client.getNick());
+	}
+}
+
+void	cmdNick(Client& client, const Message& msg)
+{
+
+}
+
+void	Server::cmdTry(std::string cmd, Client& client, const Message& msg)
+{
+	if (cmd == "PASS")
+		cmdPass(client, msg);
+	else if (cmd == "NICK")
+		cmdNick(client, msg);
+	else if (cmd == "USER")
+		cmdUser(client, msg);
+	else
+		cmdQuit(client, msg);
+}
+
 void	Server::executeCommand(Client& client, const Message& msg)
 {
 	if (_cmds.find(msg.getCmd()) == _cmds.end())
 	{
-		
-	}	
-	if (msg.getCmd() == "PASS" || msg.getCmd() == "NICK" || msg.getCmd() == "USER")
-		_cmds[]
+		unknownCmd(client.getNick(), msg.getCmd());
+		return ;
+	}
+	if (msg.getCmd() == "PASS" || msg.getCmd() == "NICK" || msg.getCmd() == "USER" || msg.getCmd() == "QUIT")
+		cmdTry(msg.getCmd(), client, msg);
 	else
 	{
 		if (!client.isRegistred())
@@ -179,7 +217,7 @@ void	Server::recieveNewData(int fd)
 	// memset(buff, 0, sizeof(buff)); // clear the buffer
 	Client* actualClient = getClient(fd);
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // recive the data
-	
+
 	if (bytes <= 0) // check if the client disconnected
 	{
 		std::cout << "Client " << fd << "disconnected." << std::endl;
@@ -198,10 +236,10 @@ void	Server::recieveNewData(int fd)
 		{
 			Message Current(lines[i]);
 			executeCommand(*actualClient, Current);
-			
+
 		}
-			
-			
+
+
 		//std::cout << "Client <" << fd << "> data " << buff;
 		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
 	}
@@ -249,7 +287,8 @@ void	Server::serSocket()
 // server init.
 void	Server::serverInit(int port, const std::string password)
 {
-	this->_port = 4444;
+	this->_port = port;
+	this->_password = password;
 	serSocket(); // create the server socket
 
 	std::cout << "Server: " << _serSocketFd << " connected." << std::endl;

@@ -59,9 +59,19 @@ Client& Client::operator=(Client const &oth)
 }
 
 // get client _fd
-int	Client::getFd()
+int const	Client::getFd()
 {
 	return (_fd);
+}
+
+std::string	Client::getNick()
+{
+	return _nickname;
+}
+
+bool	Client::getLoged()
+{
+	return _loged;
 }
 
 // set client _fd
@@ -82,11 +92,16 @@ void	Client::setBuffer(std::string buff)
 	_recvBuffer += buff;
 }
 
+void	Client::setLoged(bool state)
+{
+	_loged = state;
+}
+
 std::vector<std::string> Client::splitBuffer()
 {
-	std::vector<std::string> lines; 
+	std::vector<std::string> lines;
 	std::size_t pos;
-	
+
 	pos = _recvBuffer.find('\n');
 	while (pos != std::string::npos)
 	{

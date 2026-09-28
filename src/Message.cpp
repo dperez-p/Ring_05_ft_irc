@@ -18,7 +18,7 @@ Message::Message(std::string line)
     std::size_t                     pos;
     std::string                     tmp;
     int                             i = 0;
-    
+
     pos = line.find(' ');
     _cmd = line.substr(0, pos);
     while (i < _cmd.size())
@@ -30,9 +30,36 @@ Message::Message(std::string line)
         if (!line.empty() && line[0] == ':')
         {
             _params.push_back(line.substr(1, line.size()));
-            break;    
+            break;
         }
         pos = line.find(' ');
         _params.push_back(line.substr(0, pos));
     }
+}
+Message::Message(const Message& other)
+{
+    *this = other;
+}
+
+Message &Message::operator=(const Message& other)
+{
+    if (this != &other)
+    {
+        _cmd = other._cmd;
+        _params = other._params;
+    }
+    return *this;
+}
+
+Message::~Message(){}
+
+
+std::string Message::getCmd()
+{
+    return _cmd;
+}
+
+std::vector<std::string> Message::getParam()
+{
+    return _params;
 }

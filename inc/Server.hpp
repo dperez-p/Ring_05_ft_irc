@@ -58,12 +58,13 @@ class Server
 		void	clearClients(int fd); // clear clients
 
 		// GETTERS
-		int	getSerSocketFd();
-		Client* getClient(int fd);
+		int					getSerSocketFd();
+		Client* 			getClient(int fd);
+		std::string			getPass()	const;
 
 		//---------EXECUTION--------
 		void	executeCommand(Client& client, const Message& msg);
-		
+
 		//-----------CMDS----------------
 		void	cmdPass(Client& client, const Message& msg);
 		void	cmdNick(Client& client, const Message& msg);
@@ -76,4 +77,5 @@ class Server
 		void	cmdKick(Client& client, const Message& msg);
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
+		void	cmdTry(std::string cmd, Client& client, const Message& msg);
 };

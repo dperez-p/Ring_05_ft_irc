@@ -30,7 +30,7 @@ private:
 	bool		_isOperator; // is operator (mod for the channel)
 	bool		_registered; // is registered
 	bool		_loged; // is loged
-	int	_fd; //client file descriptor
+	int			_fd; //client file descriptor
 	std::string _ipadd; //client ip address
 	std::string _recvBuffer; // client buffer
 public:
@@ -39,16 +39,19 @@ public:
 	Client(Client const &oth); // copy construct
 	Client &operator=(Client const &other); // assignment operator
 	~Client(); // desctruct
-	
-	
+
+
 	void							setFd(int fd); // set fd
 	void							setIpAdd(std::string ipadd);
-	
+
 	/************************Getter*************************** */
-	int const						getFd() const; // getter for fd
+	int const						getFd(); // getter for fd
 	std::string 					getBuffer() const;
+	std::string						getNick();
+	bool							getLoged();
 	/***************************Setter******************************* */
 	void							setBuffer(std::string bytes);
+	void							setLoged(bool state);
 
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();
