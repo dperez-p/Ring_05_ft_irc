@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 12:33:31 by ramarti2          #+#    #+#             */
-/*   Updated: 2026/09/29 14:57:30 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/09/29 16:25:51 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,10 @@
 
 #define RPL_ENDOFNAMES(nickname, channelname) (": 366 " + nickname + " #" + channelname + " :END of /NAMES list" + CRLF)
 
-#define RPL_TOPICIS(nickname, channelname, topic) (": 332 " + nickname + " #" +channelname + " :" + topic + "\r\n")
+#define RPL_NOTOPIC(nick, channel) (": 331 " + nick + " #" + channel + " :No topic is set" + CRLF)
+
+#define RPL_TOPICIS(nickname, channelname, topic) (": 332 " + nickname + " #" +channelname + " :" + topic + CRLF)
+
 
 //-----------ERRORS----------------------------
 #define ERR_NEEDMODEPARM(channelname, mode) (": 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
@@ -51,7 +54,7 @@
 
 #define ERR_INVITEONLYCHAN(client, channelname) (": 473 " + client + " #" + channelname + " :Cannot join channel (+i)")
 
-#define ERR_BADCHANNELKEY(channelname) (": 475 #" + channelname + " :Cannot join channel (+k)")
+#define ERR_BADCHANNELKEY(nickname, channelname) (": 475 " + nickname + " #" + channelname + " :Cannot join channel (+k)")
 
 #define ERR_NOTOPERATOR(channelname) (": 482 #" + channelname + " :You're not a channel operator" + CRLF)
 

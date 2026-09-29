@@ -4,7 +4,7 @@
 Channel::Channel()
 {
 	_protectedTopic = _inviteOnly = false;
-	_userLimit = -1; // -1 = unlimited
+	_userLimit = 0; // 0 = unlimited
 	_topic = "";
 	_name = "channel";
 	_key = "";
@@ -152,23 +152,30 @@ bool	Channel::isInviteOnly() const
 	return _inviteOnly;
 }
 
-/*
-	ERR_NEEDMOREPARAMS                                         
-	ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
-	RPL_TOPIC
-*/
+
+void Channel::broadcast(const std::string& message, const Client* exclude)
+{
+	for (size_t i = 0; i < _clients.size(); ++i)
+	{
+		// Skip the client if they match the exclude pointer
+		if (exclude != NULL && _clients[i] == exclude)
+			continue;
+
+		send(_clients[i]->getFd(), message.c_str(), message.length(), MSG_NOSIGNAL);
+	}
+}
 
 void	Channel::addClient(Client& client, const std::string& key)
 {
 	std::string err;
 	if (_key != "" && key != _key)
 	{
-		err = ERR_BADCHANNELKEY(_name);
-		send(client.getFd(), err.c_str(), err.length(), 0);
+		err = ERR_BADCHANNELKEY(client.getNick(), _name);
+		send(client.getFd(), err.c_str(), err.length(), MSG_NOSIGNAL);
 		return ;
 	}
 
-	if (_userLimit != -1 && _clients.size() >= _userLimit)
+	if (_userLimit && static_cast<int>(_clients.size()) >= _userLimit)
 	{
 		err = ERR_CHANNELISFULL(client.getNick(), _name);
 		send(client.getFd(), err.c_str(), err.length(), 0);
@@ -183,7 +190,7 @@ void	Channel::addClient(Client& client, const std::string& key)
 	}
 
 	// Remove from _invited
-	for (int i = 0; i < (int)_invited.size(); i++)
+	for (int i = 0; i < static_cast<int>(_invited.size()); i++)
 	{
 		if (client.getNick() == _invited[i]->getNick())
 		{
@@ -197,9 +204,37 @@ void	Channel::addClient(Client& client, const std::string& key)
 		_operators.push_back(&client);
 	}
 	_clients.push_back(&client);
-	// broadcast join
-	// send topic
-	// member list sequence RPL_NAMREPLY & RPL_ENDOFNAMES
-	err = 
-	send(client.getFd(), err.c_str(), err.length(), 0);
+
+	// Broadcast join message (TODO: replace)
+	std::string joinMsg = ":" + client.getPrefix() + " JOIN :" + _name + "\r\n";
+	broadcast(joinMsg);
+
+	// Send Topic Reply (RPL_TOPIC 332 or RPL_NOTOPIC 331)
+	if (!_topic.empty())
+	{
+		std::string topicMsg = RPL_TOPICIS(client.getNick(), _name, _topic);
+		send(client.getFd(), topicMsg.c_str(), topicMsg.length(), MSG_NOSIGNAL);
+	}
+	else
+	{
+		std::string noTopicMsg = RPL_NOTOPIC(client.getNick(), _name);
+		send(client.getFd(), noTopicMsg.c_str(), noTopicMsg.length(), MSG_NOSIGNAL);
+	}
+
+	// Member List Sequence (RPL_NAMREPLY 353 & RPL_ENDOFNAMES 366)
+	std::string names;
+	for (size_t i = 0; i < _clients.size(); ++i)
+	{
+		if (i > 0)
+			names += " ";
+		if (_clients[i]->isOperator(*this))
+			names += "@"; // Channel operators must be prefixed with '@'
+		names += _clients[i]->getNick();
+	}
+
+	std::string namReply = RPL_NAMREPLY(client.getNick(), _name, names);
+	send(client.getFd(), namReply.c_str(), namReply.length(), MSG_NOSIGNAL);
+
+	std::string endNames = RPL_ENDOFNAMES(client.getNick(), _name);
+	send(client.getFd(), endNames.c_str(), endNames.length(), MSG_NOSIGNAL);
 }

@@ -77,6 +77,7 @@ class Channel
 		//void	Channel::setModes(const std::string& modes)
 		// modify kick so no messages are printed when leave voluntarily
 		// create "broadcast" func that sends to channel only
+		void	broadcast(const std::string& message, const Client* exclude = NULL);
 		// figure out how to demand input from clients for passkeys
 		// 
 };
