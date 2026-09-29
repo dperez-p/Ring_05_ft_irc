@@ -116,12 +116,17 @@ std::vector<std::string> Client::splitBuffer()
 		{
 			if (_recvBuffer.size() > maxMessageSize)
 			{
-				
+				_recvBuffer.clear();
 				_overSized = true;
+				return lines;
 			}
 			break; // Stop parsing for now, wait for more data
 		}
 		std::string	line = _recvBuffer.substr(0, pos);
+		if (line.size() > maxMessageSize) //Truncate, is a valid message,just too long
+		{
+			line = line.substr(0, maxMessageSize); // keep only the first 512 bytes, discard the rest
+		}
 		if (!line.empty())
 		{
 			lines.push_back(line);
@@ -137,10 +142,12 @@ std::vector<std::string> Client::splitBuffer()
 			_recvBuffer.erase(0, pos + 1);
 		}
 	}
-	if ()
-	{
-		/* code */
-	}
+		if (_recvBuffer.size() > maxMessageSize)
+		{
+			_recvBuffer.clear();
+			_overSized = true;
+			return lines;
+		}
 	
 	return lines;
 }
