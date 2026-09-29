@@ -135,6 +135,13 @@ void	Server::acceptNewClient()
 	std::cout << "Client <" << incfd << "> Connected" << std::endl;
 }
 
+void	Server::disconnectClient(int fd)
+{
+		std::cout << "Client " << fd << "disconnected." << std::endl;
+		clearClients(fd); // clear the client
+		close(fd);
+}
+
 // New data management
 void	Server::recieveNewData(int fd)
 {
@@ -149,15 +156,18 @@ void	Server::recieveNewData(int fd)
 
 	if (bytes <= 0) // check if the client disconnected
 	{
-		std::cout << "Client " << fd << "disconnected." << std::endl;
-		clearClients(fd); // clear the client
-		close(fd);
+		disconnectClient(fd);
 		return ;
 	}
 	else // print the recieved data
 	{
 		actualClient->appendBuffer(buff);
 		std::vector<std::string> commands = actualClient->splitBuffer();
+		if (actualClient->getIsOverSized())
+		{
+			disconnectClient(fd);
+			return ;
+		}
 		for (size_t i = 0; i < commands.size(); i++)
 		{
 			parseCommands(commands[i]);

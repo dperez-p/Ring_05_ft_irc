@@ -51,6 +51,7 @@ class Server
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client
 		void	recieveNewData(int fd); // recieve new data from a registered client
+		void	disconnectClient(int fd);
 
 		static void signalHandler(int signum); // signal handler
 

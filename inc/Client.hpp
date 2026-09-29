@@ -31,6 +31,7 @@ private:
 	bool		_isOperator; // is operator (mod for the channel)
 	bool		_registered; // is registered
 	bool		_loged; // is loged
+	bool		_overSized; // control if the buffer was oversized
 	int			_fd;	//client file descriptor
 	std::string _ipadd; //client ip address
 	std::string _recvBuffer; // client buffer
@@ -46,10 +47,13 @@ public:
 	void	setIpAdd(std::string ipadd);
 
 	/************************Getter*************************** */
-	int	getFd() const; // getter for fd
-	const std::string& getBuffer() const;
+	int					getFd() const; // getter for fd
+	const std::string&	getBuffer() const;
+	int					getBufferSize() const;
+	bool				getIsOverSized() const;
+	
 	/***************************Setter******************************* */
-	void	appendBuffer(std::string bytes);
+	void appendBuffer(const char* data, ssize_t len);
 	/*******************PARSE*************************** */
 	std::vector<std::string>	splitBuffer();
 };
