@@ -31,6 +31,24 @@ static bool validPort(const std::string &port)
 }
 
 int	main(int ac, char **av)
+static bool validPort(const std::string &port)
+{
+	if (port.empty()) // check if the port is empty
+	{
+		return false;
+	}
+	bool isAllDigits = (port.find_first_not_of("0123456789") == std::string::npos); //Check if all characters in the string are numeric digits
+
+	if (!isAllDigits) // check if is false
+	{
+		return false;
+	}
+	int portNum = std::atoi(port.c_str()); // Convert the C-style string pointer to an integer
+
+	return (portNum >= 1024 && portNum <= 65535); // check if the number are between a range (true) or not (false)
+}
+
+int	main(int ac, char **av)
 {
 	Server	ser;
 	if (ac != 3)
@@ -40,6 +58,12 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
+		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
+		{
+			std::cout << "Invalid port number / Password." << std::endl;
+			return 1;
+		}
+		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
 		{
 			std::cout << "Invalid port number / Password." << std::endl;

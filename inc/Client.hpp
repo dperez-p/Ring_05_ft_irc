@@ -22,23 +22,23 @@
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
 
+class	Channel;
 class Client
 {
-private:
-	std::string	_nickname; // user nickname
-	std::string	_username; // username
-	bool		_isOperator; // is operator (mod for the channel)
-	bool		_registered; // is registered
-	bool		_loged; // is loged
-	int			_fd; //client file descriptor
-	std::string _ipadd; //client ip address
-	std::string _recvBuffer; // client buffer
-public:
-	Client(); // default constr
-	Client(std::string nickname, std::string username, int fd); // argu constr
-	Client(Client const &oth); // copy construct
-	Client &operator=(Client const &other); // assignment operator
-	~Client(); // desctruct
+	private:
+		std::string	_nickname; // user nickname
+		std::string	_username; // username
+		bool		_registered; // is registered
+		bool		_logged; // is logged
+		int			_fd;	//client file descriptor
+		std::string _ipadd; //client ip address
+		std::string _recvBuffer; // client buffer
+	public:
+		Client(); // default constr
+		Client(std::string nickname, std::string username, int fd); // argu constr
+		Client(Client const &oth); // copy construct
+		Client &operator=(Client const &other); // assignment operator
+		~Client(); // desctruct
 
 
 	void							setFd(int fd); // set fd
@@ -56,4 +56,8 @@ public:
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();
 	void							clearBuffer();
+
+	bool	isOperator(const Channel& channel) const;
+	bool	inChannel(const Channel& channel) const;
+	bool	isInvited(const Channel& channel) const;
 };

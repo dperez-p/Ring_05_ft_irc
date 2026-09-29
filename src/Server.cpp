@@ -82,12 +82,6 @@ std::string	Server::getPass() const
 // static bool init
 bool	Server::_signal = false;
 
-// Default constructor
-Server::Server()
-{
-	_serSocketFd = -1;
-}
-
 void	Server::signalHandler(int signum)
 {
 	(void) signum;
@@ -225,6 +219,7 @@ void	Server::recieveNewData(int fd)
 		close(fd);
 		return ;
 	}
+	// SEARCH THE CLIENT from the fd to assign the buffer.
 	else // print the recieved data
 	{
 		std::string	chunk(buff, bytes); // Avoiding '\0 cut' with overload
@@ -285,6 +280,7 @@ void	Server::serSocket()
 }
 
 // server init.
+void	Server::serverInit(int port, const std::string password)
 void	Server::serverInit(int port, const std::string password)
 {
 	this->_port = port;

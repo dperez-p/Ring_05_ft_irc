@@ -40,13 +40,18 @@ class Server
 		int	_serSocketFd; // server socket file descriptor
 		static bool	_signal; // boolean for signal, static to create one for the class and not for each object
 		std::vector<Client> _clients; // vector of clients
+		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
 		std::string _password;
 		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
 
 	public:
 		Server();
+		Server(Server const &oth);
+		Server &operator=(Server const & oth);
+		~Server();
 
+		void	serverInit(int port, const std::string password); // server initialization
 		void	serverInit(int port, const std::string password); // server initialization
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client
