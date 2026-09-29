@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/27 21:48:51 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/29 22:58:08 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,13 +161,13 @@ void	Server::cmdPass(Client& client, const Message& msg)
 	if (client.getLoged())
 		return ;
 	if (msg.getParam()[0].empty())
-		insParams(client.getNick(), msg.getCmd());
+		ERR_NOTENOUGHPARAM(client.getNick());
 	else
 	{
 		if (msg.getParam()[0] == _password)
 			client.setLoged(true);
 		else
-			paswdMiss(client.getNick());
+			ERR_INCORPASS(client.getNick());
 	}
 }
 
@@ -192,7 +192,7 @@ void	Server::executeCommand(Client& client, const Message& msg)
 {
 	if (_cmds.find(msg.getCmd()) == _cmds.end())
 	{
-		unknownCmd(client.getNick(), msg.getCmd());
+		ERR_CMDNOTFOUND(client.getNick(), msg.getCmd());
 		return ;
 	}
 	if (msg.getCmd() == "PASS" || msg.getCmd() == "NICK" || msg.getCmd() == "USER" || msg.getCmd() == "QUIT")

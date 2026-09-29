@@ -66,12 +66,17 @@ int	Client::getFd() const
 
 bool	Client::getLoged() const
 {
-	return _loged;
+	return _logged;
 }
 
 std::string	Client::getNick() const
 {
 	return (_nickname);
+}
+
+std::string	Client::getPrefix() const
+{
+	return (_nickname + "!" + _username + "@" + _ipadd);
 }
 
 // set client _fd
@@ -94,7 +99,12 @@ void	Client::setBuffer(std::string buff)
 
 void	Client::setLoged(bool state)
 {
-	_loged = state;
+	_logged = state;
+}
+
+void	Client::setNick(const std::string& nickname)
+{
+	_nickname = nickname;
 }
 
 std::vector<std::string> Client::splitBuffer()

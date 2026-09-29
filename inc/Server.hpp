@@ -31,6 +31,7 @@
 
 class Client;
 class Channel;
+class Message;
 
 
 class Server
@@ -51,7 +52,6 @@ class Server
 		Server &operator=(Server const & oth);
 		~Server();
 
-		void	serverInit(int port, const std::string password); // server initialization
 		void	serverInit(int port, const std::string password); // server initialization
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client

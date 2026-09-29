@@ -6,11 +6,12 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/27 13:27:14 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/27 19:48:33 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/29 22:48:51 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Message.hpp"
+#include <cctype>
 
 Message::Message(std::string line)
 {
@@ -54,12 +55,12 @@ Message &Message::operator=(const Message& other)
 Message::~Message(){}
 
 
-std::string Message::getCmd()
+std::string Message::getCmd() const
 {
     return _cmd;
 }
 
-std::vector<std::string> Message::getParam()
+std::vector<std::string> Message::getParam() const
 {
     return _params;
 }

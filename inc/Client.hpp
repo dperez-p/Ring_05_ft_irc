@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/27 21:43:54 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/29 22:47:42 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,13 +45,15 @@ class Client
 	void							setIpAdd(std::string ipadd);
 
 	/************************Getter*************************** */
-	int const						getFd(); // getter for fd
+	int						getFd() const; // getter for fd
 	std::string 					getBuffer() const;
-	std::string						getNick();
-	bool							getLoged();
+		std::string						getNick() const;
+		std::string						getPrefix() const;
+		bool							getLoged() const;
 	/***************************Setter******************************* */
 	void							setBuffer(std::string bytes);
 	void							setLoged(bool state);
+		void							setNick(const std::string& nickname);
 
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();

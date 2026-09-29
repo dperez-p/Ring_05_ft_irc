@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Replies.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
+/*   Updated: 2026/09/29 23:00:37 by lanton-m         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #pragma once
 
@@ -41,9 +52,9 @@
 
 #define ERR_CHANNELISFULL(nickname, channelname) (":ircserv 471 " + nickname + " #" + channelname + " :Cannot join channel (+l)" + CRLF)
 
-#define ERR_INVITEONLYCHAN(client, channelname) (":ircserv 473 " + client + " #" + channelname + " :Cannot join channel (+i)")
+#define ERR_INVITEONLYCHAN(client, channelname) (":ircserv 473 " + client + " #" + channelname + " :Cannot join channel (+i)" + CRLF)
 
-#define ERR_BADCHANNELKEY(nickname, channelname) (":ircserv 475 " + nickname + " #" + channelname + " :Cannot join channel (+k)")
+#define ERR_BADCHANNELKEY(nickname, channelname) (":ircserv 475 " + nickname + " #" + channelname + " :Cannot join channel (+k)" + CRLF)
 
 #define ERR_NOTOPERATOR(channelname) (":ircserv 482 #" + channelname + " :You're not a channel operator" + CRLF)
 
