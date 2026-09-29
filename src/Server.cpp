@@ -161,7 +161,7 @@ void	Server::recieveNewData(int fd)
 	}
 	else // print the recieved data
 	{
-		actualClient->appendBuffer(buff);
+		actualClient->appendBuffer(buff, bytes);
 		std::vector<std::string> commands = actualClient->splitBuffer();
 		if (actualClient->getIsOverSized())
 		{
@@ -170,7 +170,8 @@ void	Server::recieveNewData(int fd)
 		}
 		for (size_t i = 0; i < commands.size(); i++)
 		{
-			parseCommands(commands[i]);
+			Message Current(commands[i]);
+			executeCommand(*actualClient, Current);
 		}
 	}
 }
