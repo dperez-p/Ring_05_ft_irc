@@ -137,7 +137,7 @@ void	Server::acceptNewClient()
 
 void	Server::disconnectClient(int fd)
 {
-		std::cout << "Client " << fd << "disconnected." << std::endl;
+		std::cout << "Client " << fd << " disconnected." << std::endl;
 		clearClients(fd); // clear the client
 		close(fd);
 }
