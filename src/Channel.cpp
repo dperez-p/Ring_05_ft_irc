@@ -54,6 +54,7 @@ void	Channel::kick(const std::string& nickname, const std::string& comment)
 				std::cout << " because " << comment;
 			std::cout << std::endl;
 			_clients.erase(_clients.begin() + i);
+			// TODO remove from _invited and _operators
 			return ;
 		}
 	}
@@ -77,7 +78,7 @@ void	Channel::invite(Client& client)
 
 //void	Channel::add()
 // TOPIC command
-std::string	Channel::getTopic() const
+const std::string&	Channel::getTopic() const
 {
 	return _topic;
 }
@@ -106,8 +107,9 @@ void	Channel::setLimit(int limit)
 {
 	_userLimit = limit;
 }
+
 // mode 'o'
-void	Channel::changeOperatorStatus(Client& client)
+void	Channel::setOperatorStatus(Client& client, bool setting)
 {
 	if (!client.inChannel(*this))
 	{
@@ -126,21 +128,21 @@ void	Channel::changeOperatorStatus(Client& client)
 	// erase or add to _operators
 	if (inList)
 		_operators.erase(_operators.begin() + i);
-	else
+	else if(setting == true)
 		_operators.push_back(&client);
 }
 
-std::vector<Client*>	Channel::getOperators() const
+const std::vector<Client*>&	Channel::getOperators() const
 {
 	return _operators;
 }
 
-std::vector<Client*>	Channel::getClients() const
+const std::vector<Client*>&	Channel::getClients() const
 {
 	return _clients;
 }
 
-std::vector<Client*>	Channel::getInvites() const
+const std::vector<Client*>&	Channel::getInvites() const
 {
 	return _invited;
 }
@@ -152,6 +154,7 @@ bool	Channel::isInviteOnly() const
 
 void	Channel::addClient(Client& client)
 {
+	// TODO: send password to client if there is one?
 	if (_clients.size() == 0)
 	{
 		_clients.push_back(&client);
@@ -160,10 +163,20 @@ void	Channel::addClient(Client& client)
 	else if (_inviteOnly && client.isInvited(*this))
 	{
 		_clients.push_back(&client);
-		// TODO: remove client from invites list!
+		// Remove from _invited
+		for (int i = 0; i < (int)_invited.size(); i++)
+		{
+			if (client.getNick() == _invited[i]->getNick())
+			{
+				_invited.erase(_invited.begin() + i);
+				break ;
+			}
+		}
 	}
 	else if (!_inviteOnly)
 	{
 		_clients.push_back(&client);
 	}
+	else
+		std::cout << client.getNick() << " needs an invitation." << std::endl;
 }

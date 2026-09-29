@@ -31,15 +31,23 @@ class Channel
 		void	setTopicLock(const bool value);
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);
-		void	changeOperatorStatus(Client& client);
+		void	setOperatorStatus(Client& client, bool isoperator);
 		
-		std::string	getTopic() const;
-		std::vector<Client*>	getOperators() const;
-		std::vector<Client*>	getClients() const;
-		std::vector<Client*>	getInvites() const;
+		const std::string&	getTopic() const;
+		const std::vector<Client*>&	getOperators() const;
+		const std::vector<Client*>&	getClients() const;
+		const std::vector<Client*>&	getInvites() const;
 		bool	isInviteOnly() const;
 
 		void	addClient(Client& client);
+
+		//TODO:
+		// show mode.
+		// set several modes at once?
+		// modify kick so no messages are printed when leave voluntarily
+		// create "broadcast" func that sends to channel only
+		// figure out how to demand input from clients for passkeys
+		// 
 };
 
 
