@@ -128,7 +128,7 @@ void	Channel::setOperatorStatus(Client& client, bool setting)
 	// erase or add to _operators
 	if (inList)
 		_operators.erase(_operators.begin() + i);
-	else if(setting == true)
+	if(setting == true)
 		_operators.push_back(&client);
 }
 
@@ -152,31 +152,54 @@ bool	Channel::isInviteOnly() const
 	return _inviteOnly;
 }
 
-void	Channel::addClient(Client& client)
+/*
+	ERR_NEEDMOREPARAMS                                         
+	ERR_NOSUCHCHANNEL               ERR_TOOMANYCHANNELS
+	RPL_TOPIC
+*/
+
+void	Channel::addClient(Client& client, const std::string& key)
 {
-	// TODO: send password to client if there is one?
-	if (_clients.size() == 0)
+	std::string err;
+	if (_key != "" && key != _key)
 	{
-		_clients.push_back(&client);
-		_operators.push_back(&client);
+		err = ERR_BADCHANNELKEY(_name);
+		send(client.getFd(), err.c_str(), err.length(), 0);
+		return ;
 	}
-	else if (_inviteOnly && client.isInvited(*this))
+
+	if (_userLimit != -1 && _clients.size() >= _userLimit)
 	{
-		_clients.push_back(&client);
-		// Remove from _invited
-		for (int i = 0; i < (int)_invited.size(); i++)
+		err = ERR_CHANNELISFULL(client.getNick(), _name);
+		send(client.getFd(), err.c_str(), err.length(), 0);
+		return ;
+	}
+
+	if (_inviteOnly && !client.isInvited(*this))
+	{
+		err = ERR_INVITEONLYCHAN(client.getNick(), _name);
+		send(client.getFd(), err.c_str(), err.length(), 0);
+		return ;
+	}
+
+	// Remove from _invited
+	for (int i = 0; i < (int)_invited.size(); i++)
+	{
+		if (client.getNick() == _invited[i]->getNick())
 		{
-			if (client.getNick() == _invited[i]->getNick())
-			{
-				_invited.erase(_invited.begin() + i);
-				break ;
-			}
+			_invited.erase(_invited.begin() + i);
+			break ;
 		}
 	}
-	else if (!_inviteOnly)
+
+	if (_clients.size() == 0)
 	{
-		_clients.push_back(&client);
+		_operators.push_back(&client);
 	}
-	else
-		std::cout << client.getNick() << " needs an invitation." << std::endl;
+	_clients.push_back(&client);
+	// broadcast join
+	// send topic
+	// member list sequence RPL_NAMREPLY & RPL_ENDOFNAMES
+	err = 
+	send(client.getFd(), err.c_str(), err.length(), 0);
 }
