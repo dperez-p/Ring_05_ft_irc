@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/29 22:58:08 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/29 23:07:04 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,7 +280,6 @@ void	Server::serSocket()
 }
 
 // server init.
-void	Server::serverInit(int port, const std::string password)
 void	Server::serverInit(int port, const std::string password)
 {
 	this->_port = port;
