@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/01 00:32:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/01 00:40:43 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ bool	Server::nickInUse(std::string nick)
 {
 	for (int i = 0; i < _clients.size(); i++)
 	{
-		if (nick == _clients[i].getNick())
+		if (nick == _clients[i].getNick()) // tolower on both to check character to character :(
 			return true;
 	}
 	return false;
@@ -214,7 +214,7 @@ void	Server::cmdNick(Client& client, const Message& msg)
 		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay())));
 	if (nickInUse(params[0]))
 		return (send_msg(client, ERR_NICKINUSE(client.getNick())));
-	
+
 
 
 }
