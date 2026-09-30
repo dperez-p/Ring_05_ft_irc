@@ -238,3 +238,4 @@ void	Channel::addClient(Client& client, const std::string& key)
 	std::string endNames = RPL_ENDOFNAMES(client.getNick(), _name);
 	send(client.getFd(), endNames.c_str(), endNames.length(), MSG_NOSIGNAL);
 }
+
