@@ -1,10 +1,11 @@
 
 Para Luis: Aqui te dejo unos apuntes que hice para organizarme.  Espero que tengan algo de sentido y que te sean utiles ~Rafa
-
+Para Rafa: perfe, he entendido lo que necesitas, voy dandole a los comandos de registro que es un poco largo y me pongo con los q involucran a 
+channel, lo único que he tocado tuyo es la función send_msg que le he quitado static para poder llamarla. Ánimo
 --------------------
 Commands:
 Luis: parses messages to extract each parameter and passes them into my functions which do the rest of the work.
-Luis commads: PASS, NICK, USER, QUIT, PRIVMSG
+Luis commads: PASS (done), NICK (working on), USER, QUIT, PRIVMSG
 
 --------------------------------------------------------
 JOIN: e.g. JOIN #channame1,#channame2,... pass1,pass2,...

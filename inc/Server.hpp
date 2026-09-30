@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/27 21:50:42 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/01 00:27:00 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
 #include <cstring>
+#include <cctype>
 #include <unistd.h>
 #include <cstdlib>
 
@@ -44,6 +45,7 @@ class Server
 		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
 		std::string _password;
+		typedef void (Server::*CmdFunc)(Client&, const Message&);	// alias for the map
 		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
 
 	public:
@@ -68,7 +70,8 @@ class Server
 		std::string			getPass()	const;
 
 		//---------EXECUTION--------
-		void	executeCommand(Client& client, const Message& msg);
+		void			executeCommand(Client& client, const Message& msg);
+		bool			nickInUse(std::string nick);
 
 		//-----------CMDS----------------
 		void	cmdPass(Client& client, const Message& msg);

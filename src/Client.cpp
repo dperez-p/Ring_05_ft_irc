@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/30 12:31:58 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/09/30 23:54:20 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,9 +64,14 @@ int	Client::getFd() const
 	return (_fd);
 }
 
-bool	Client::getLogged() const
+bool	Client::getIsLogged() const
 {
 	return _logged;
+}
+
+bool	Client::getIsRegistered() const
+{
+	return _registered;
 }
 
 std::string	Client::getNick() const
@@ -164,3 +169,17 @@ bool	Client::isInvited(const Channel& channel) const
 	}
 	return false;
 }
+
+
+bool	Client::isRegistered() const
+{
+	return (!_nickname.empty() && !_username.empty() && _logged);
+}
+
+std::string	Client::nickForReplay() const
+{
+	if (_nickname.empty()) return ("*");
+	return (_nickname);
+}
+
+

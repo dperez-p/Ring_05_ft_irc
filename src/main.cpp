@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 12:11:34 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/29 22:49:45 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 19:03:22 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,6 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
-		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
-		{
-			std::cout << "Invalid port number / Password." << std::endl;
-			return 1;
-		}
 		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
 		{

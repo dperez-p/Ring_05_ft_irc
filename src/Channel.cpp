@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/30 16:57:03 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/09/30 19:33:24 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../inc/Channel.hpp"
 
-static void	send_msg(Client& recvr, const std::string toSend)
+void	send_msg(Client& recvr, const std::string toSend)
 {
 	send(recvr.getFd(), toSend.c_str(), toSend.length(), MSG_NOSIGNAL);
 }
@@ -74,7 +74,7 @@ int	search(const std::string& nickname, std::vector<Client*>& list)
 void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 {
 	int i;
-	
+
 	if (search(kicker.getNick(), _clients) == -1)
 		send_msg(kicker, ERR_NOTONCHANNEL(kicker.getNick(), _name));
 
@@ -89,12 +89,12 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 	i = search(toKick.getNick(), _invited);
 	if (i > -1)
 		_invited.erase(_invited.begin() + i);
-	
+
 	i = search(toKick.getNick(), _operators);
 	if (i > -1)
 		_operators.erase(_operators.begin() + i);
-	
-	std::string joinMsg = 
+
+	std::string joinMsg =
 	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + "\r\n";
 	broadcast(joinMsg);
 }
@@ -218,7 +218,7 @@ void	Channel::showMode(Client& caller)
 
 void	Channel::setMode(Client& caller)
 {
-	
+
 
 }
 

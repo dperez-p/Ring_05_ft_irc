@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/30 16:03:16 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/01 00:32:48 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Message.hpp"
 #include "Client.hpp"
 #include "Replies.hpp"
+#include "Channel.hpp"
 
 Server::Server()
 {
@@ -158,50 +159,83 @@ void	Server::acceptNewClient()
 
 void	Server::cmdPass(Client& client, const Message& msg)
 {
-	if (client.getLogged())
-		return ;
-	if (msg.getParam()[0].empty())
-		ERR_NOTENOUGHPARAM(client.getNick());
-	else
+	std::vector<std::string>	params = msg.getParam();
+
+	if (client.getIsRegistered())
+		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
+	if (params.empty() || params[0] == "")	// u can ignore extra parameters
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[0] == _password)
 	{
-		if (msg.getParam()[0] == _password)
-			client.setLogged(true);
-		else
-			ERR_INCORPASS(client.getNick());
+		client.setLogged(true);
+		if (client.isRegistered())
+			send_msg(client, RPL_CONNECTED(client.nickForReplay()));
+		return ;
 	}
+	return (send_msg(client, ERR_INCORPASS(client.nickForReplay())));
 }
+static bool specialchar(char c)
+{
+	std::string valids = "[]\\`^_{}|";
 
-void	cmdNick(Client& client, const Message& msg)
+	return (valids.find(c) != std::string::npos);
+}
+bool	Server::nickInUse(std::string nick)
+{
+	for (int i = 0; i < _clients.size(); i++)
+	{
+		if (nick == _clients[i].getNick())
+			return true;
+	}
+	return false;
+}
+static bool	validNick(std::string nick)
 {
 
+	if (nick.length() > 9)
+		return false;
+	if (!isalpha(static_cast<unsigned char>(nick[0])) && !specialchar(nick[0]))
+		return false;
+	for (int i = 1; i < nick.length(); i++)
+	{
+		unsigned char character = static_cast<unsigned char>(nick[i]);
+		if (!isalnum(character) && !specialchar(nick[i]) && nick[i] != '-')
+			return false;
+	}
+	return true;
+}
+void	Server::cmdNick(Client& client, const Message& msg)
+{
+	std::vector<std::string> params = msg.getParam();
+
+	if (params.empty() || params[0] == "")
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (!validNick(params[0]))
+		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay())));
+	if (nickInUse(params[0]))
+		return (send_msg(client, ERR_NICKINUSE(client.getNick())));
+	
+
+
 }
 
-void	Server::cmdTry(std::string cmd, Client& client, const Message& msg)
+static bool	accessCmd(std::string cmd)
 {
-	if (cmd == "PASS")
-		cmdPass(client, msg);
-	else if (cmd == "NICK")
-		cmdNick(client, msg);
-	else if (cmd == "USER")
-		cmdUser(client, msg);
-	else
-		cmdQuit(client, msg);
+	if (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT")
+		return 1;
+	return 0;
 }
 
 void	Server::executeCommand(Client& client, const Message& msg)
 {
-	if (_cmds.find(msg.getCmd()) == _cmds.end())
-	{
-		ERR_CMDNOTFOUND(client.getNick(), msg.getCmd());
-		return ;
-	}
-	if (msg.getCmd() == "PASS" || msg.getCmd() == "NICK" || msg.getCmd() == "USER" || msg.getCmd() == "QUIT")
-		cmdTry(msg.getCmd(), client, msg);
-	else
-	{
-		if (!client.isRegistred())
-			_cmds[]
-	}
+	std::map<std::string, CmdFunc>::iterator it;
+
+	it = _cmds.find(msg.getCmd());
+	if (it == _cmds.end())
+		return (send_msg(client, ERR_CMDNOTFOUND(client.nickForReplay(), msg.getCmd())));
+	if (!client.getIsRegistered() && !accessCmd(it->first))
+		return (send_msg(client, ERR_NOTREGISTERED(client.nickForReplay())));
+	(this->*(it->second))(client, msg);
 }
 
 // New data management
