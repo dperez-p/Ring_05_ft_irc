@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/29 23:00:37 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 16:37:55 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,3 +73,12 @@
 #define ERR_NOTREGISTERED(nickname) (":ircserv 451 " + nickname + " :You have not registered!" + CRLF)
 
 #define ERR_CMDNOTFOUND(nickname, command) (":ircserv 421 " + nickname + " " + command + " :Unknown command" + CRLF)
+
+#define ERR_USERNOTINCHANNEL(nickname, channel) (":ircserv 441 " + nickname + " #" + channel + ":They aren't on that channel" + CRLF) //should have client b4 nickname...
+
+#define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " #" + channel + "You're not on that channel" + CRLF)
+
+#define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + channel + " :You're not channel operator" + CRLF)
+
+
+

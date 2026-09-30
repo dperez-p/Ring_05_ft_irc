@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/29 22:47:42 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 12:31:45 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,13 @@ class Client
 	/************************Getter*************************** */
 	int						getFd() const; // getter for fd
 	std::string 					getBuffer() const;
-		std::string						getNick() const;
-		std::string						getPrefix() const;
-		bool							getLoged() const;
+	std::string						getNick() const;
+	std::string						getPrefix() const;
+	bool							getLogged() const;
 	/***************************Setter******************************* */
 	void							setBuffer(std::string bytes);
-	void							setLoged(bool state);
-		void							setNick(const std::string& nickname);
+	void							setLogged(bool state);
+	void							setNick(const std::string& nickname);
 
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();

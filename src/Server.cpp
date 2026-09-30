@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/29 23:07:04 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 16:03:16 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,14 +158,14 @@ void	Server::acceptNewClient()
 
 void	Server::cmdPass(Client& client, const Message& msg)
 {
-	if (client.getLoged())
+	if (client.getLogged())
 		return ;
 	if (msg.getParam()[0].empty())
 		ERR_NOTENOUGHPARAM(client.getNick());
 	else
 	{
 		if (msg.getParam()[0] == _password)
-			client.setLoged(true);
+			client.setLogged(true);
 		else
 			ERR_INCORPASS(client.getNick());
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/29 23:00:02 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 17:09:24 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,9 @@ class Channel
 
 	// For channel operators:
 	// Note: We assume that the client executing these is an operator. No checks.
-		void	kick(const std::string& uname, const std::string& comment);
-		void	invite(Client& Client);
+		void	addClient(Client& client, const std::string& key);
+		void	kick(Client& kicker, Client& toKick, const std::string& comment);
+		void	invite(Client& Client); // 
 		void	setTopic(const std::string& topic);
 		void	setInvite(const bool value);
 		void	setTopicLock(const bool value);
@@ -56,35 +57,19 @@ class Channel
 		const std::vector<Client*>&	getInvites() const;
 		bool	isInviteOnly() const;
 
-		void	addClient(Client& client, const std::string& key);
+		
+		/*
+		LUIS TODO: 
+		1. hacer funcion de JOIN que al final es un wrapper para esta.
+			- Comprueba si el canal existe, si no, lo crea y llamas mi addClient que convierte al cliente en operador por defecto.
+			- Si el cliente mete un key como parametro, pasaselo a mi función.
+		2. 
+		
+		*/
 
 
 		//TODO:
-		// show mode.
-		void	Channel::showMode(Client& caller)
-		{
-			std::string modes("+");
-			std::string values;
-			//itkl
-			if (isInviteOnly())
-				modes += "i";
-			if (_protectedTopic)
-				modes += "t";
-			if (_key != "")
-			{
-				modes += "k";
-				values += _key;
-			}
-			if (_userLimit > -1)
-			{
-				modes += "l";
-				if (_key != "")
-					values += " ";
-				values += std::to_string(_userLimit);
-			}
-			std::string final = RPL_CHANNELMODEIS(caller.getNick(), _name, modes, values);
-			send(caller.getFd(), final.c_str(), final.length(), 0);
-		}
+		void	showMode(Client& caller);
 		// set several modes at once?
 		//void	Channel::setModes(const std::string& modes)
 		// modify kick so no messages are printed when leave voluntarily

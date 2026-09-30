@@ -1,0 +1,95 @@
+
+Para Luis: Aqui te dejo unos apuntes que hice para organizarme.  Espero que tengan algo de sentido y que te sean utiles ~Rafa
+
+--------------------
+Commands:
+Luis: parses messages to extract each parameter and passes them into my functions which do the rest of the work.
+Luis commads: PASS, NICK, USER, QUIT, PRIVMSG
+
+--------------------------------------------------------
+JOIN: e.g. JOIN #channame1,#channame2,... pass1,pass2,...
+Luis:
+ERR_NEEDMOREPARAMS (461)
+ERR_NOSUCHCHANNEL (403)
+
+yo:
+ERR_BADCHANNELKEY (475) x
+ERR_CHANNELISFULL (471) x
+ERR_INVITEONLYCHAN (473) x
+RPL_TOPIC (332) x
+RPL_NAMREPLY (353) x
+RPL_ENDOFNAMES (366) x
+join message x
+
+nadie:
+RPL_TOPICWHOTIME (333)
+ERR_BADCHANMASK (476)
+ERR_TOOMANYCHANNELS (405)
+ERR_BANNEDFROMCHAN (474)
+
+-----------------------------------------------------------
+PART: e.g. PART #channame1,#channame2,...  reason
+
+Yo hago la funcion para salirme de 1 solo canal.  Si el usuario se quiere salir de varios a la vez, Luis tendra que crear un bucle saliendose de cada uno.
+
+Luis:
+if channel doesn't exist: ERR_NOSUCHCHANNEL (403)
+if not enough params: ERR_NEEDMOREPARAMS (461)
+
+Yo:
+if person not in channel: ERR_NOTONCHANNEL (442)
+Message: :YourNick!user@host PART #channel :Back in an hour!
+
+----------------------------------------------------------------
+KICK:  e.g. KICK #channame user :comment
+Luis:
+ERR_NOSUCHCHANNEL
+ERR_NEEDMOREPARAMS
+
+yo:
+ERR_NOTONCHANNEL x
+ERR_CHANOPRIVISNEEDED x
+ERR_USERNOTINCHANNEL (the user that KICK applies to) x
+
+After kick, a message like this should be displayed:
+:KickerNick!kickeruser@kickerhost KICK #channel TargetNick :Reason text goes here\r\n x
+
+---------------------------------------------------------------------
+INVITE: e.g. INVITE user #channel
+Luis:
+ERR_NOSUCHCHANNEL
+ERR_NEEDMOREPARAMS
+
+yo:
+ERR_NOTONCHANNEL
+if channel is in invite-only mode, only channel operators can invite so ERR_CHANOPRIVSNEEDED whenever inviter is not an operator in this case.
+ERR_USERONCHANNEL (when they're already in channel)
+
+If successful, RPL_INVITING must be sent
+
+-----------------------------------------------------------------
+MODE: e.g. MODE #channel +o user, MODE #channel +i, MODE #channel +k 
+
+Luis:
+ERR_NOSUCHCHANNEL
+
+yo:
+ERR_CHANOPRIVISNEEDED
+
+prototype:	static void setMode(modestr, vector<string> args)?
+Luis parses and sends me the args and modestr.  Checks that client is operator and channel exists.
+
+if no mode string: static showMode. x
+
+-----------------------------------------------------------------
+TOPIC: e.g. TOPIC #channame :new topic, TOPIC #channame :, TOPIC #Channame
+The first and second are to change it and the third is to view.
+
+Luis:
+if channel doesn't exist ERR_NOSUCHCHANNEL
+
+yo:
+if client not on channel ERR_NOTONCHANNEL 442
+if protected topic ERR_CHANOPRIVISNEEDED 482
+When viewing, RPL_TOPIC or RPL_NOTOPIC
+

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/27 21:42:55 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 12:31:58 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int	Client::getFd() const
 	return (_fd);
 }
 
-bool	Client::getLoged() const
+bool	Client::getLogged() const
 {
 	return _logged;
 }
@@ -97,7 +97,7 @@ void	Client::setBuffer(std::string buff)
 	_recvBuffer += buff;
 }
 
-void	Client::setLoged(bool state)
+void	Client::setLogged(bool state)
 {
 	_logged = state;
 }

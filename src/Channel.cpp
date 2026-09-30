@@ -3,15 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/29 23:00:53 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/30 16:57:03 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../inc/Channel.hpp"
+
+static void	send_msg(Client& recvr, const std::string toSend)
+{
+	send(recvr.getFd(), toSend.c_str(), toSend.length(), MSG_NOSIGNAL);
+}
 
 // ------------------- OCF + Parameterized Constructor --------------
 Channel::Channel()
@@ -56,24 +61,44 @@ Channel::~Channel() {}
 // ---------- Channel Operations -------------
 // channel operator verification occurs OUTSIDE these
 
-void	Channel::kick(const std::string& nickname, const std::string& comment)
+int	search(const std::string& nickname, std::vector<Client*>& list)
 {
-	for (int i = 0; i < (int)_clients.size(); i++)
+	for (int i = 0; i < static_cast<int>(list.size()); i++)
 	{
-		if (_clients[i]->getNick() == nickname)
-		{
-			std::cout << _clients[i]->getNick() << " was kicked from " << _name;
-			if (!comment.empty())
-				std::cout << " because " << comment;
-			std::cout << std::endl;
-			_clients.erase(_clients.begin() + i);
-			// TODO remove from _invited and _operators
-			return ;
-		}
+		if (list[i]->getNick() == nickname)
+			return i;
 	}
-	// Where do I print these messages to?????????  Do I print them at all??
-	std::cout << "No user called " << nickname << " in " << _name << " ." << std::endl;
+	return -1;
 }
+
+void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
+{
+	int i;
+	
+	if (search(kicker.getNick(), _clients) == -1)
+		send_msg(kicker, ERR_NOTONCHANNEL(kicker.getNick(), _name));
+
+	if (search(kicker.getNick(), _operators) == -1)
+		send_msg(kicker, ERR_CHANOPRIVSNEEDED(kicker.getNick(), _name));
+
+	i = search(toKick.getNick(), _clients);
+	if (i == -1)
+		send_msg(toKick, ERR_USERNOTINCHANNEL(toKick.getNick(), _name));
+	_clients.erase(_clients.begin() + i);
+
+	i = search(toKick.getNick(), _invited);
+	if (i > -1)
+		_invited.erase(_invited.begin() + i);
+	
+	i = search(toKick.getNick(), _operators);
+	if (i > -1)
+		_operators.erase(_operators.begin() + i);
+	
+	std::string joinMsg = 
+	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + "\r\n";
+	broadcast(joinMsg);
+}
+
 
 void	Channel::invite(Client& client)
 {
@@ -166,6 +191,38 @@ bool	Channel::isInviteOnly() const
 }
 
 
+
+void	Channel::showMode(Client& caller)
+{
+	std::string modes("+");
+	std::string values;
+	//itkl
+	if (isInviteOnly())
+		modes += "i";
+	if (_protectedTopic)
+		modes += "t";
+	if (_key != "")
+	{
+		modes += "k";
+		values += _key;
+	}
+	if (_userLimit > -1)
+	{
+		modes += "l";
+		if (_key != "")
+			values += " ";
+		values += std::to_string(_userLimit);
+	}
+	send_msg(caller, RPL_CHANNELMODEIS(caller.getNick(), _name, modes, values));
+}
+
+void	Channel::setMode(Client& caller)
+{
+	
+
+}
+
+
 void Channel::broadcast(const std::string& message, const Client* exclude)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
@@ -173,7 +230,6 @@ void Channel::broadcast(const std::string& message, const Client* exclude)
 		// Skip the client if they match the exclude pointer
 		if (exclude != NULL && _clients[i] == exclude)
 			continue;
-
 		send(_clients[i]->getFd(), message.c_str(), message.length(), MSG_NOSIGNAL);
 	}
 }
@@ -183,22 +239,19 @@ void	Channel::addClient(Client& client, const std::string& key)
 	std::string err;
 	if (_key != "" && key != _key)
 	{
-		err = ERR_BADCHANNELKEY(client.getNick(), _name);
-		send(client.getFd(), err.c_str(), err.length(), MSG_NOSIGNAL);
+		send_msg(client, ERR_BADCHANNELKEY(client.getNick(), _name));
 		return ;
 	}
 
 	if (_userLimit && static_cast<int>(_clients.size()) >= _userLimit)
 	{
-		err = ERR_CHANNELISFULL(client.getNick(), _name);
-		send(client.getFd(), err.c_str(), err.length(), 0);
+		send_msg(client, ERR_CHANNELISFULL(client.getNick(), _name));
 		return ;
 	}
 
 	if (_inviteOnly && !client.isInvited(*this))
 	{
-		err = ERR_INVITEONLYCHAN(client.getNick(), _name);
-		send(client.getFd(), err.c_str(), err.length(), 0);
+		send_msg(client, ERR_INVITEONLYCHAN(client.getNick(), _name));
 		return ;
 	}
 
@@ -225,13 +278,11 @@ void	Channel::addClient(Client& client, const std::string& key)
 	// Send Topic Reply (RPL_TOPIC 332 or RPL_NOTOPIC 331)
 	if (!_topic.empty())
 	{
-		std::string topicMsg = RPL_TOPICIS(client.getNick(), _name, _topic);
-		send(client.getFd(), topicMsg.c_str(), topicMsg.length(), MSG_NOSIGNAL);
+		send_msg(client, RPL_TOPICIS(client.getNick(), _name, _topic));
 	}
 	else
 	{
-		std::string noTopicMsg = RPL_NOTOPIC(client.getNick(), _name);
-		send(client.getFd(), noTopicMsg.c_str(), noTopicMsg.length(), MSG_NOSIGNAL);
+		send_msg(client, RPL_NOTOPIC(client.getNick(), _name));
 	}
 
 	// Member List Sequence (RPL_NAMREPLY 353 & RPL_ENDOFNAMES 366)
@@ -241,13 +292,10 @@ void	Channel::addClient(Client& client, const std::string& key)
 		if (i > 0)
 			names += " ";
 		if (_clients[i]->isOperator(*this))
-			names += "@"; // Channel operators must be prefixed with '@'
+			names += "@"; // '@' prefix for operators
 		names += _clients[i]->getNick();
 	}
 
-	std::string namReply = RPL_NAMREPLY(client.getNick(), _name, names);
-	send(client.getFd(), namReply.c_str(), namReply.length(), MSG_NOSIGNAL);
-
-	std::string endNames = RPL_ENDOFNAMES(client.getNick(), _name);
-	send(client.getFd(), endNames.c_str(), endNames.length(), MSG_NOSIGNAL);
+	send_msg(client, RPL_NAMREPLY(client.getNick(), _name, names));
+	send_msg(client, RPL_ENDOFNAMES(client.getNick(), _name));
 }
