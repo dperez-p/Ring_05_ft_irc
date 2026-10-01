@@ -27,7 +27,7 @@
 
 
 class Client;
-//class Channel;
+class Channel;
 
 class Server
 {
@@ -36,7 +36,7 @@ class Server
 		int	_serSocketFd; // server socket file descriptor
 		static bool	_signal; // boolean for signal, static to create one for the class and not for each object
 		std::vector<Client> _clients; // vector of clients
-		//std::vector<Channel> _channel; // vector of channels
+		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
 		std::string _password;
 

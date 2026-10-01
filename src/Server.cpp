@@ -33,7 +33,7 @@ Server &Server::operator=(Server const &oth)
 		this->_serSocketFd = oth._serSocketFd;
 		this->_password = oth._password;
 		this->_clients = oth._clients;
-		//this->_channel = oth._channel;
+		this->_channel = oth._channel;
 		this->_fds = oth._fds;
 	}
 	return (*this);
@@ -170,8 +170,8 @@ void	Server::recieveNewData(int fd)
 		}
 		for (size_t i = 0; i < commands.size(); i++)
 		{
-			//Message Current(commands[i]);
-			//executeCommand(*actualClient, Current);
+			Message Current(commands[i]);
+			executeCommand(*actualClient, Current);
 		}
 	}
 }
