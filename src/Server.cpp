@@ -6,11 +6,11 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/23 19:29:08 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/09/24 14:18:53 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 
 Server::Server()
 {
@@ -40,7 +40,7 @@ Server &Server::operator=(Server const &oth)
 }
 
 /********************************************** Getters *****************************************/
-int	Server::getSerSocketFd()
+int	Server::getSerSocketFd() const
 {
 	return (_serSocketFd);
 }
@@ -64,7 +64,6 @@ bool	Server::_signal = false;
 void	Server::signalHandler(int signum)
 {
 	(void) signum;
-	std::cout << std::endl << "Signal received correctly!" << std::endl;
 	Server::_signal = true; // set signal to true to stop the server.
 }
 
@@ -116,12 +115,13 @@ void	Server::acceptNewClient()
 	if (incfd == -1)
 	{
 		std::cout << "accept() failed" << std::endl;
-		close(incfd); // release the kernel resource
 		return ;
 	}
-	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option fiir bib-blocking socket
+	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option for non-blocking socket
 	{
 		std::cout << "fcntl() failed" << std::endl;
+		close(incfd); // release the kernel resource
+		return ;
 	}
 	newPoll.fd = incfd; // add the client socket to the pollfd
 	newPoll.events = POLLIN; // set the event to POLLIN for reading data
@@ -132,7 +132,14 @@ void	Server::acceptNewClient()
 	_clients.push_back(cli); // add client to the vector of clients
 	_fds.push_back(newPoll); // add the client socket to the pollfdl
 
-	std::cout << "Client <" << incfd << "> Connected" << std::endl;
+	std::cout << "Client <" << incfd << "> connection established" << std::endl;
+}
+
+void	Server::disconnectClient(int fd)
+{
+		std::cout << "Client " << fd << " disconnected." << std::endl;
+		clearClients(fd); // clear the client
+		close(fd);
 }
 
 // New data management
@@ -141,24 +148,31 @@ void	Server::recieveNewData(int fd)
 	char	buff[1024]; // buffer for the data
 	memset(buff, 0, sizeof(buff)); // clear the buffer
 	Client* actualClient = getClient(fd);
+	if (!actualClient) // if fd is not found
+	{
+		return ;
+	}
 	ssize_t bytes = recv(fd, buff, sizeof(buff) - 1, 0); // recive the data
 
 	if (bytes <= 0) // check if the client disconnected
 	{
-		std::cout << "Client " << fd << "disconnected." << std::endl;
-		clearClients(fd); // clear the client
-		close(fd);
+		disconnectClient(fd);
 		return ;
 	}
 	else // print the recieved data
 	{
-		actualClient->setBuffer(buff);
-		if (actualClient->getBuffer().find_first_of("\r\n") == std::string::npos)
-			return ;
+		actualClient->appendBuffer(buff, bytes);
 		std::vector<std::string> commands = actualClient->splitBuffer();
-		buff[bytes] = '\0';
-		std::cout << "Client <" << fd << "> data " << buff;
-		//here you can add your code to process the received data: parse, check, authenticate, handle the command, etc...
+		if (actualClient->getIsOverSized())
+		{
+			disconnectClient(fd);
+			return ;
+		}
+		for (size_t i = 0; i < commands.size(); i++)
+		{
+			Message Current(commands[i]);
+			executeCommand(*actualClient, Current);
+		}
 	}
 }
 
@@ -168,7 +182,7 @@ void	Server::serSocket()
 	struct	sockaddr_in	add; // default sockeadd structure.
 	struct	pollfd	newPoll; //default poll structure.
 	add.sin_family = AF_INET; // set the address family to IPV4
-	add.sin_port = htons(this->_port); // conver te port to network bye order (big endian)
+	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_addr.s_addr = INADDR_ANY; // set the adress to any Local machine address
 
 	_serSocketFd = socket(AF_INET, SOCK_STREAM, 0); // creathe the server socket from the default socket function.
@@ -227,10 +241,19 @@ void	Server::serverInit(int port, const std::string password)
 				}
 				else
 				{
+					size_t	sizePreData = _fds.size(); // control the size after the data.
 					recieveNewData(_fds[i].fd);
+					if (_fds.size() < sizePreData) // if one client was removed, don't skip the next fd
+					{
+						i--;
+					}
 				}
 			}
 		}
+	}
+	if (Server::_signal == true)
+	{
+		std::cout << std::endl << "Signal received correctly!" << std::endl;
 	}
 	closeFds(); // close the file descriptors when the server stops
 }
