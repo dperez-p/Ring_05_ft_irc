@@ -3,19 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/30 19:33:24 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/01 16:07:11 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../inc/Channel.hpp"
 
+// ---------------- Helpers --------------------------------------
+
 void	send_msg(Client& recvr, const std::string toSend)
 {
 	send(recvr.getFd(), toSend.c_str(), toSend.length(), MSG_NOSIGNAL);
+}
+
+int	search(const std::string& nickname, std::vector<Client*>& list)
+{
+	for (int i = 0; i < static_cast<int>(list.size()); i++)
+	{
+		if (list[i]->getNick() == nickname)
+			return i;
+	}
+	return -1;
 }
 
 // ------------------- OCF + Parameterized Constructor --------------
@@ -58,32 +70,43 @@ Channel::Channel(const std::string& name, const std::string& key) : Channel()
 
 Channel::~Channel() {}
 
-// ---------- Channel Operations -------------
-// channel operator verification occurs OUTSIDE these
-
-int	search(const std::string& nickname, std::vector<Client*>& list)
+//-------------- Getters -----------------------
+const std::vector<Client*>&	Channel::getOperators() const
 {
-	for (int i = 0; i < static_cast<int>(list.size()); i++)
-	{
-		if (list[i]->getNick() == nickname)
-			return i;
-	}
-	return -1;
+	return _operators;
 }
+
+const std::vector<Client*>&	Channel::getClients() const
+{
+	return _clients;
+}
+
+const std::vector<Client*>&	Channel::getInvites() const
+{
+	return _invited;
+}
+
+const std::string&	Channel::getTopic() const
+{
+	return _topic;
+}
+
+// ---------- Channel Operations and Setters -------------
+// channel operator verification occurs OUTSIDE these
 
 void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 {
 	int i;
 
 	if (search(kicker.getNick(), _clients) == -1)
-		send_msg(kicker, ERR_NOTONCHANNEL(kicker.getNick(), _name));
+		return send_msg(kicker, ERR_NOTONCHANNEL(kicker.getNick(), _name));
 
 	if (search(kicker.getNick(), _operators) == -1)
-		send_msg(kicker, ERR_CHANOPRIVSNEEDED(kicker.getNick(), _name));
+		return send_msg(kicker, ERR_CHANOPRIVSNEEDED(kicker.getNick(), _name));
 
 	i = search(toKick.getNick(), _clients);
 	if (i == -1)
-		send_msg(toKick, ERR_USERNOTINCHANNEL(toKick.getNick(), _name));
+		return send_msg(toKick, ERR_USERNOTINCHANNEL(kicker.getNick(), toKick.getNick(), _name));
 	_clients.erase(_clients.begin() + i);
 
 	i = search(toKick.getNick(), _invited);
@@ -94,31 +117,31 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 	if (i > -1)
 		_operators.erase(_operators.begin() + i);
 
-	std::string joinMsg =
+	std::string kickMsg =
 	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + "\r\n";
-	broadcast(joinMsg);
+	broadcast(kickMsg);
 }
 
-
-void	Channel::invite(Client& client)
+void	Channel::invite(Client& inviter, Client& toInvite)
 {
-	// Do I print a message for invites? Where?
-	for (int i = 0; i < (int)_invited.size(); i++)
-	{
-		if (client.getNick() == _invited[i]->getNick())
-		{
-			std::cout << "User was already invited." << std::endl;
-			return;
-		}
-	}
-	_invited.push_back(&client);
-}
+	if (search(inviter.getNick(), _clients) == -1)
+		return send_msg(inviter, ERR_NOTONCHANNEL(inviter.getNick(), _name));
+	
+	if (_inviteOnly && search(inviter.getNick(), _operators) == -1)
+		return send_msg(inviter, ERR_CHANOPRIVSNEEDED(inviter.getNick(), _name));
+	
+	if (search(toInvite.getNick(), _clients) != -1)
+		return send_msg(inviter, ERR_USERONCHANNEL(inviter.getNick(), toInvite.getNick(), _name));
+	
+	if (search(toInvite.getNick(), _invited) != -1)
+		_invited.push_back(&toInvite);
 
-//void	Channel::add()
-// TOPIC command
-const std::string&	Channel::getTopic() const
-{
-	return _topic;
+	// Reply to inviter
+	send_msg(inviter, RPL_INVITING(inviter.getNick(), toInvite.getNick(), _name));
+	
+	// Message to invitee
+	std::string inviteMsg = ":" + inviter.getPrefix() + " INVITE " + toInvite.getNick() + " #" + _name + CRLF;
+	send_msg(toInvite, inviteMsg);
 }
 
 void	Channel::setTopic(const std::string& topic)
@@ -147,50 +170,29 @@ void	Channel::setLimit(int limit)
 }
 
 // mode 'o'
-void	Channel::setOperatorStatus(Client& client, bool setting)
+void	Channel::setOperatorStatus(Client& setter, const std::string& nickname, bool setting)
 {
-	if (!client.inChannel(*this))
+	int i = search(nickname, _clients);
+	if (i == -1)
+		return send_msg(setter, ERR_USERNOTINCHANNEL(setter.getNick(), nickname, _name));
+	
+	if (search(setter.getNick(), _operators) == -1)
+		return send_msg(setter, ERR_CHANOPRIVSNEEDED(setter.getNick(), _name));
+	
+	if (setting == true && search(nickname, _operators) != -1)
+		return _operators.push_back(_clients[i]);
+	else if (setting == false)
 	{
-		std::cout << "Client not in channel." << std::endl;
-		return ;
+		i = search(nickname, _operators);
+		if (i != -1)
+			_operators.erase(_operators.begin() + i);
 	}
-
-	// check if client in operators
-	bool inList = false;
-	int i = 0;
-	for (; i < (int)_operators.size() && !inList; i++)
-	{
-		if (_operators[i]->getNick() == client.getNick())
-			inList = true;
-	}
-	// erase or add to _operators
-	if (inList)
-		_operators.erase(_operators.begin() + i);
-	if(setting == true)
-		_operators.push_back(&client);
-}
-
-const std::vector<Client*>&	Channel::getOperators() const
-{
-	return _operators;
-}
-
-const std::vector<Client*>&	Channel::getClients() const
-{
-	return _clients;
-}
-
-const std::vector<Client*>&	Channel::getInvites() const
-{
-	return _invited;
 }
 
 bool	Channel::isInviteOnly() const
 {
 	return _inviteOnly;
 }
-
-
 
 void	Channel::showMode(Client& caller)
 {
@@ -206,7 +208,7 @@ void	Channel::showMode(Client& caller)
 		modes += "k";
 		values += _key;
 	}
-	if (_userLimit > -1)
+	if (_userLimit > 0)
 	{
 		modes += "l";
 		if (_key != "")
@@ -216,10 +218,49 @@ void	Channel::showMode(Client& caller)
 	send_msg(caller, RPL_CHANNELMODEIS(caller.getNick(), _name, modes, values));
 }
 
-void	Channel::setMode(Client& caller)
+void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<std::string> args)
 {
-
-
+	if (search(caller.getNick(), _operators) == -1)
+		send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
+	
+	std::vector<std::string>::iterator it = args.begin();
+	
+	bool	addMode = true;
+	for (int i = 0; i < modestr.length(); i++)
+	{
+		if (modestr.at(i) == '+')
+		{
+			addMode = true;
+		}
+		else if (modestr.at(i) == '-')
+		{
+			addMode = false;
+		}
+		else if (modestr.at(i) == 'i')
+		{
+			this->setInvite((addMode == true ? true : false));
+		}
+		else if (modestr.at(i) == 't')
+		{
+			this->setTopicLock((addMode == true ? true : false));
+		}
+		else if (modestr.at(i) == 'k')
+		{
+			this->setKey((addMode == true ? *it++ : ""));
+		}
+		else if (modestr.at(i) == 'o')
+		{
+			this->setOperatorStatus(caller, *it, addMode);
+		}
+		else if (modestr.at(i) == 'l')
+		{
+			
+		}
+		else
+		{
+			
+		}
+	}
 }
 
 
@@ -271,7 +312,7 @@ void	Channel::addClient(Client& client, const std::string& key)
 	}
 	_clients.push_back(&client);
 
-	// Broadcast join message (TODO: replace)
+	// broadcast JOIN message
 	std::string joinMsg = ":" + client.getPrefix() + " JOIN :" + _name + "\r\n";
 	broadcast(joinMsg);
 

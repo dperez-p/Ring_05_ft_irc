@@ -1,7 +1,9 @@
 
 Para Luis: Aqui te dejo unos apuntes que hice para organizarme.  Espero que tengan algo de sentido y que te sean utiles ~Rafa
+
 Para Rafa: perfe, he entendido lo que necesitas, voy dandole a los comandos de registro que es un poco largo y me pongo con los q involucran a 
 channel, lo único que he tocado tuyo es la función send_msg que le he quitado static para poder llamarla. Ánimo
+
 --------------------
 Commands:
 Luis: parses messages to extract each parameter and passes them into my functions which do the rest of the work.
@@ -52,8 +54,8 @@ ERR_NOTONCHANNEL x
 ERR_CHANOPRIVISNEEDED x
 ERR_USERNOTINCHANNEL (the user that KICK applies to) x
 
-After kick, a message like this should be displayed:
-:KickerNick!kickeruser@kickerhost KICK #channel TargetNick :Reason text goes here\r\n x
+After kick, a message like this should be displayed: x
+:KickerNick!kickeruser@kickerhost KICK #channel TargetNick :Reason text goes here\r\n
 
 ---------------------------------------------------------------------
 INVITE: e.g. INVITE user #channel
@@ -62,11 +64,14 @@ ERR_NOSUCHCHANNEL
 ERR_NEEDMOREPARAMS
 
 yo:
-ERR_NOTONCHANNEL
-if channel is in invite-only mode, only channel operators can invite so ERR_CHANOPRIVSNEEDED whenever inviter is not an operator in this case.
-ERR_USERONCHANNEL (when they're already in channel)
+ERR_NOTONCHANNEL x
+ERR_CHANOPRIVSNEEDED (channel invite-only and inviter not an operator) x
+ERR_USERONCHANNEL (when invited client already in channel) x
 
-If successful, RPL_INVITING must be sent
+If successful, RPL_INVITING must be sent to inviter x
+and an invite message to invitee x
+
+e.g. :dan-!d@localhost INVITE Wiz #test
 
 -----------------------------------------------------------------
 MODE: e.g. MODE #channel +o user, MODE #channel +i, MODE #channel +k 
@@ -75,12 +80,12 @@ Luis:
 ERR_NOSUCHCHANNEL
 
 yo:
-ERR_CHANOPRIVISNEEDED
+ERR_CHANOPRIVISNEEDED x
 
 prototype:	static void setMode(modestr, vector<string> args)?
 Luis parses and sends me the args and modestr.  Checks that client is operator and channel exists.
 
-if no mode string: static showMode. x
+if no mode string: static showMode.
 
 -----------------------------------------------------------------
 TOPIC: e.g. TOPIC #channame :new topic, TOPIC #channame :, TOPIC #Channame

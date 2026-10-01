@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/30 19:34:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/01 16:04:50 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,13 @@ class Channel
 	// Note: We assume that the client executing these is an operator. No checks.
 		void	addClient(Client& client, const std::string& key);
 		void	kick(Client& kicker, Client& toKick, const std::string& comment);
-		void	invite(Client& Client); //
+		void	invite(Client& inviter, Client& toInvite);
 		void	setTopic(const std::string& topic);
 		void	setInvite(const bool value);
 		void	setTopicLock(const bool value);
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);
-		void	setOperatorStatus(Client& client, bool isoperator);
+		void	setOperatorStatus(Client& setter, const std::string& nickname, bool setting);
 
 		const std::string&	getTopic() const;
 		const std::vector<Client*>&	getOperators() const;
@@ -70,6 +70,7 @@ class Channel
 
 		//TODO:
 		void	showMode(Client& caller);
+		void	setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
 		// set several modes at once?
 		//void	Channel::setModes(const std::string& modes)
 		// modify kick so no messages are printed when leave voluntarily

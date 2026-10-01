@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/30 16:37:55 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/01 13:14:03 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,9 @@
 #define RPL_NOTOPIC(nick, channel) (":ircserv 331 " + nick + " #" + channel + " :No topic is set" + CRLF)
 
 #define RPL_TOPICIS(nickname, channelname, topic) (":ircserv 332 " + nickname + " #" +channelname + " :" + topic + CRLF)
+
+#define RPL_INVITING(client_nick, invited_nick, channel) (":ircserv 341 " + client_nick + " " + invited_nick + " #" + channel + CRLF)
+
 
 
 //-----------ERRORS----------------------------
@@ -74,11 +77,13 @@
 
 #define ERR_CMDNOTFOUND(nickname, command) (":ircserv 421 " + nickname + " " + command + " :Unknown command" + CRLF)
 
-#define ERR_USERNOTINCHANNEL(nickname, channel) (":ircserv 441 " + nickname + " #" + channel + ":They aren't on that channel" + CRLF) //should have client b4 nickname...
+#define ERR_USERNOTINCHANNEL(client_nick, nickname, channel) (":ircserv 441 " + client_nick + " " + nickname + " #" + channel + ":They aren't on that channel" + CRLF)
+
+#define ERR_USERONCHANNEL(client_nick, invited_nick, channel) (":ircserv 443 " + client_nick + " " + invited_nick + " #" + channel + " :is already on channel" + CRLF)
 
 #define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " #" + channel + "You're not on that channel" + CRLF)
 
-#define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + channel + " :You're not channel operator" + CRLF)
+#define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
 
 
 
