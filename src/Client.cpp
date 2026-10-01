@@ -6,12 +6,11 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/30 23:54:20 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
-#include "Channel.hpp"
+#include "../inc/Client.hpp"
 
 // Default constructor
 Client::Client()
@@ -20,6 +19,7 @@ Client::Client()
 	this->_username = "";
 	this->_fd = -1;
 	this->_registered = false;
+	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
 	this->_logged = false;
@@ -31,6 +31,7 @@ Client::Client(std::string nickname, std::string username, int fd)
 	this->_username = username;
 	this->_fd = fd;
 	this->_registered = false;
+	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
 	this->_logged = false;
@@ -51,15 +52,20 @@ Client& Client::operator=(Client const &oth)
 		this->_registered = oth._registered;
 		this->_recvBuffer = oth._recvBuffer;
 		this->_logged = oth._logged;
+		this->_overSized = oth._overSized;
 		this->_ipadd = oth._ipadd;
 	}
 	return (*this);
 }
 
-Client::~Client() {}
+Client::~Client()
+{
 
+}
+
+/*********************************Getters*************************************** */
 // get client _fd
-int	Client::getFd() const
+int Client::getFd() const
 {
 	return (_fd);
 }
@@ -84,6 +90,23 @@ std::string	Client::getPrefix() const
 	return (_nickname + "!" + _username + "@" + _ipadd);
 }
 
+//Return the client buffer
+const std::string&  Client::getBuffer() const
+{
+	return (_recvBuffer);
+}
+
+int Client::getBufferSize() const
+{
+	return _recvBuffer.size();
+}
+
+bool	Client::getIsOverSized() const
+{
+	return _overSized;
+}
+
+/**********************************Setters***********************8 */
 // set client _fd
 void	Client::setFd(int	fd)
 {
@@ -97,9 +120,9 @@ void	Client::setIpAdd(std::string ipadd)
 }
 
 // add to the current client buffer.
-void	Client::setBuffer(std::string buff)
+void Client::appendBuffer(const char* data, ssize_t len)
 {
-	_recvBuffer += buff;
+	_recvBuffer.append(data, len);
 }
 
 void	Client::setLogged(bool state)
@@ -112,22 +135,53 @@ void	Client::setNick(const std::string& nickname)
 	_nickname = nickname;
 }
 
+// split the buffer and erase it
 std::vector<std::string> Client::splitBuffer()
 {
 	std::vector<std::string> lines;
-	std::size_t pos;
-
-	pos = _recvBuffer.find('\n');
-	while (pos != std::string::npos)
+	size_t pos;
+	static const	size_t	maxMessageSize = 512;
+	//Find the delimiter and extract the line, then erase it
+	while ((pos = _recvBuffer.find_first_of("\r\n")) != std::string::npos)
 	{
+		//EDGE CASE if we found '\r' at the very end of the buffer, wait for potential '\n' in next recv
+		if (_recvBuffer[pos] == '\r' && pos + 1 == _recvBuffer.size())
+		{
+			if (_recvBuffer.size() > maxMessageSize)
+			{
+				_recvBuffer.clear();
+				_overSized = true;
+				return lines;
+			}
+			break; // Stop parsing for now, wait for more data
+		}
 		std::string	line = _recvBuffer.substr(0, pos);
-		if (!line.empty() && line[line.size() - 1] == '\r')
-			line.erase(line.size() - 1);
-		lines.push_back(line);
-		_recvBuffer.erase(0, pos + 1);
-		pos = _recvBuffer.find('\n');
+		if (line.size() > maxMessageSize) //Truncate, is a valid message,just too long
+		{
+			line = line.substr(0, maxMessageSize - 2); // keep only the first 512 bytes, discard the rest
+		}
+		if (!line.empty())
+		{
+			lines.push_back(line);
+		}
+		// check the size then check both \r && \n to erase it
+		if (pos + 1 < _recvBuffer.size() && _recvBuffer[pos] == '\r' &&  _recvBuffer[pos + 1] == '\n' )
+		{
+			_recvBuffer.erase(0, pos + 2);
+		}
+		// erase until \n
+		else
+		{
+			_recvBuffer.erase(0, pos + 1);
+		}
 	}
-	return (lines);
+	if (_recvBuffer.size() > maxMessageSize)
+	{
+		_recvBuffer.clear();
+		_overSized = true;
+		return lines;
+	}
+	return lines;
 }
 
 void	Client::clearBuffer()
@@ -181,5 +235,3 @@ std::string	Client::nickForReplay() const
 	if (_nickname.empty()) return ("*");
 	return (_nickname);
 }
-
-

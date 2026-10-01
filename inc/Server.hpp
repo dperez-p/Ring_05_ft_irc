@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/01 00:27:00 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/24 12:48:10 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,12 @@
 #include <arpa/inet.h> // for inet_ntoa()
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
+#include <sstream>
 #include <cstring>
 #include <cctype>
 #include <unistd.h>
 #include <cstdlib>
+
 
 
 
@@ -58,6 +60,7 @@ class Server
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client
 		void	recieveNewData(int fd); // recieve new data from a registered client
+		void	disconnectClient(int fd);
 
 		static void signalHandler(int signum); // signal handler
 
@@ -65,8 +68,8 @@ class Server
 		void	clearClients(int fd); // clear clients
 
 		// GETTERS
-		int					getSerSocketFd();
-		Client* 			getClient(int fd);
+		int					    getSerSocketFd() const;
+		Client* 			  getClient(int fd);
 		std::string			getPass()	const;
 
 		//---------EXECUTION--------
@@ -86,4 +89,5 @@ class Server
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
 		void	cmdTry(std::string cmd, Client& client, const Message& msg);
+		Client* getClient(int fd);
 };

@@ -6,12 +6,13 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 12:11:34 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/30 19:03:22 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/09/24 13:49:53 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "Client.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Client.hpp"
+#include <stdlib.h>
 
 static bool validPort(const std::string &port)
 {
@@ -32,9 +33,12 @@ static bool validPort(const std::string &port)
 
 int	main(int ac, char **av)
 {
-	Server	ser;
 	if (ac != 3)
-		return (std::cout << "Usage: " << av[0] << " <port number> <password>" << std::endl, 1);
+	{
+		std::cout << "Usage: " << av[0] << " <port number> <password>" << std::endl;
+		return 1;
+	}
+	Server	ser;
 	std::cout << "------------ SERVER ------------" << std::endl;
 	try
 	{
@@ -52,6 +56,8 @@ int	main(int ac, char **av)
 	{
 		ser.closeFds();
 		std::cerr << e.what() << std::endl;
+		std::cout << "The Server Closed!" << std::endl;
+		return 1;
 	}
 	std::cout << "The Server Closed!" << std::endl;
 }
