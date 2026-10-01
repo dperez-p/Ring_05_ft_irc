@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "../inc/Client.hpp"
 
 // Default constructor
 Client::Client()
@@ -60,6 +60,12 @@ Client& Client::operator=(Client const &oth)
 	}
 	return (*this);
 }
+
+Client::~Client()
+{
+
+}
+
 /*********************************Getters*************************************** */
 // get client _fd
 int Client::getFd() const
@@ -125,7 +131,7 @@ std::vector<std::string> Client::splitBuffer()
 		std::string	line = _recvBuffer.substr(0, pos);
 		if (line.size() > maxMessageSize) //Truncate, is a valid message,just too long
 		{
-			line = line.substr(0, maxMessageSize); // keep only the first 512 bytes, discard the rest
+			line = line.substr(0, maxMessageSize - 2); // keep only the first 512 bytes, discard the rest
 		}
 		if (!line.empty())
 		{
@@ -142,12 +148,11 @@ std::vector<std::string> Client::splitBuffer()
 			_recvBuffer.erase(0, pos + 1);
 		}
 	}
-		if (_recvBuffer.size() > maxMessageSize)
-		{
-			_recvBuffer.clear();
-			_overSized = true;
-			return lines;
-		}
-	
+	if (_recvBuffer.size() > maxMessageSize)
+	{
+		_recvBuffer.clear();
+		_overSized = true;
+		return lines;
+	}
 	return lines;
 }

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 
 Server::Server()
 {
@@ -33,7 +33,7 @@ Server &Server::operator=(Server const &oth)
 		this->_serSocketFd = oth._serSocketFd;
 		this->_password = oth._password;
 		this->_clients = oth._clients;
-		this->_channel = oth._channel;
+		//this->_channel = oth._channel;
 		this->_fds = oth._fds;
 	}
 	return (*this);
@@ -117,7 +117,7 @@ void	Server::acceptNewClient()
 		std::cout << "accept() failed" << std::endl;
 		return ;
 	}
-	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option fiir bib-blocking socket
+	if (fcntl(incfd, F_SETFL, O_NONBLOCK) == -1) // set the socket option for non-blocking socket
 	{
 		std::cout << "fcntl() failed" << std::endl;
 		close(incfd); // release the kernel resource
@@ -132,7 +132,7 @@ void	Server::acceptNewClient()
 	_clients.push_back(cli); // add client to the vector of clients
 	_fds.push_back(newPoll); // add the client socket to the pollfdl
 
-	std::cout << "Client <" << incfd << "> Connected" << std::endl;
+	std::cout << "Client <" << incfd << "> connection established" << std::endl;
 }
 
 void	Server::disconnectClient(int fd)
@@ -170,8 +170,8 @@ void	Server::recieveNewData(int fd)
 		}
 		for (size_t i = 0; i < commands.size(); i++)
 		{
-			Message Current(commands[i]);
-			executeCommand(*actualClient, Current);
+			//Message Current(commands[i]);
+			//executeCommand(*actualClient, Current);
 		}
 	}
 }
@@ -182,7 +182,7 @@ void	Server::serSocket()
 	struct	sockaddr_in	add; // default sockeadd structure.
 	struct	pollfd	newPoll; //default poll structure.
 	add.sin_family = AF_INET; // set the address family to IPV4
-	add.sin_port = htons(this->_port); // conver te port to network bye order (big endian)
+	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_addr.s_addr = INADDR_ANY; // set the adress to any Local machine address
 
 	_serSocketFd = socket(AF_INET, SOCK_STREAM, 0); // creathe the server socket from the default socket function.

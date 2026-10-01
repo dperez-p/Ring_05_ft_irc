@@ -10,8 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "Client.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Client.hpp"
+#include <stdlib.h>
 
 static bool validPort(const std::string &port)
 {
