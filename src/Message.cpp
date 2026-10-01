@@ -18,12 +18,15 @@ Message::Message(std::string line)
     std::vector<std::string>        args;
     std::size_t                     pos;
     std::string                     tmp;
-    int                             i = 0;
+    std::size_t                     i = 0;
 
     pos = line.find(' ');
     _cmd = line.substr(0, pos);
     while (i < _cmd.size())
-        _cmd[i] = std::toupper(static_cast<unsigned char>(_cmd[i++]));
+    {
+        _cmd[i] = std::toupper(static_cast<unsigned char>(_cmd[i]));
+        i++;
+    }
     while (pos != std::string::npos)
     {
         line.erase(0, pos + 1);

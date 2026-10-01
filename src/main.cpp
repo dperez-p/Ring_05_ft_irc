@@ -44,7 +44,6 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
-		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
 		{
 			std::cout << "Invalid port number / Password." << std::endl;

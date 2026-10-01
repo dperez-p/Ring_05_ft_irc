@@ -12,6 +12,7 @@
 
 #pragma once
 
+
 #define CRLF "\r\n"
 
 #define RPL_CONNECTED(nickname) (":ircserv 001 " + nickname + " : Welcome to the IRC server!" + CRLF)

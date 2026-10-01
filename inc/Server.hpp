@@ -49,6 +49,7 @@ class Server
 		std::string _password;
 		typedef void (Server::*CmdFunc)(Client&, const Message&);	// alias for the map
 		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
+		void	tryRegister(Client& client);
 
 	public:
 		Server();
@@ -69,12 +70,12 @@ class Server
 
 		// GETTERS
 		int					    getSerSocketFd() const;
-		Client* 			  getClient(int fd);
-		std::string			getPass()	const;
+		Client* 			  	getClient(int fd);
+		std::string				getPass()	const;
 
 		//---------EXECUTION--------
 		void			executeCommand(Client& client, const Message& msg);
-		bool			nickInUse(std::string nick);
+		bool			nickInUse(Client& client, const std::string& nick);
 
 		//-----------CMDS----------------
 		void	cmdPass(Client& client, const Message& msg);
@@ -88,6 +89,4 @@ class Server
 		void	cmdKick(Client& client, const Message& msg);
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
-		void	cmdTry(std::string cmd, Client& client, const Message& msg);
-		Client* getClient(int fd);
 };

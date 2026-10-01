@@ -11,11 +11,14 @@
 /* ************************************************************************** */
 
 #pragma once
-#include "Client.hpp"
 #include "Replies.hpp"
+#include <string>
+#include <vector>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+
+class Client;
 
 class Channel
 {

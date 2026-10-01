@@ -12,6 +12,9 @@
 
 
 #include "../inc/Channel.hpp"
+#include "../inc/Client.hpp"
+#include <cstdlib>
+#include <sstream>
 
 // ---------------- Helpers --------------------------------------
 
@@ -62,10 +65,9 @@ Channel::Channel(const Channel& other)
 	*this = other;
 }
 
-Channel::Channel(const std::string& name, const std::string& key) : Channel()
+Channel::Channel(const std::string& name, const std::string& key)
+	: _protectedTopic(false), _inviteOnly(false), _userLimit(0), _name(name), _topic(""), _key(key)
 {
-	_name = name;
-	_key = key;
 }
 
 Channel::~Channel() {}
@@ -126,19 +128,19 @@ void	Channel::invite(Client& inviter, Client& toInvite)
 {
 	if (search(inviter.getNick(), _clients) == -1)
 		return send_msg(inviter, ERR_NOTONCHANNEL(inviter.getNick(), _name));
-	
+
 	if (_inviteOnly && search(inviter.getNick(), _operators) == -1)
 		return send_msg(inviter, ERR_CHANOPRIVSNEEDED(inviter.getNick(), _name));
-	
+
 	if (search(toInvite.getNick(), _clients) != -1)
 		return send_msg(inviter, ERR_USERONCHANNEL(inviter.getNick(), toInvite.getNick(), _name));
-	
+
 	if (search(toInvite.getNick(), _invited) != -1)
 		_invited.push_back(&toInvite);
 
 	// Reply to inviter
 	send_msg(inviter, RPL_INVITING(inviter.getNick(), toInvite.getNick(), _name));
-	
+
 	// Message to invitee
 	std::string inviteMsg = ":" + inviter.getPrefix() + " INVITE " + toInvite.getNick() + " #" + _name + CRLF;
 	send_msg(toInvite, inviteMsg);
@@ -176,10 +178,10 @@ void	Channel::setOperatorStatus(Client& setter, const std::string& nickname, boo
 	int i = search(nickname, _clients);
 	if (i == -1)
 		return send_msg(setter, ERR_USERNOTINCHANNEL(setter.getNick(), nickname, _name));
-	
+
 	if (search(setter.getNick(), _operators) == -1)
 		return send_msg(setter, ERR_CHANOPRIVSNEEDED(setter.getNick(), _name));
-	
+
 	if (setting == true && search(nickname, _operators) != -1)
 		return _operators.push_back(_clients[i]);
 	else if (setting == false)
@@ -211,10 +213,13 @@ void	Channel::showMode(Client& caller)
 	}
 	if (_userLimit > 0)
 	{
+		std::ostringstream limit;
+
 		modes += "l";
 		if (_key != "")
 			values += " ";
-		values += std::to_string(_userLimit);
+		limit << _userLimit;
+		values += limit.str();
 	}
 	send_msg(caller, RPL_CHANNELMODEIS(caller.getNick(), _name, modes, values));
 }
@@ -223,11 +228,11 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 {
 	if (search(caller.getNick(), _operators) == -1)
 		send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
-	
+
 	std::vector<std::string>::iterator it = args.begin();
-	
+
 	bool	addMode = true;
-	for (int i = 0; i < modestr.length() && it != args.end(); i++)
+	for (size_t i = 0; i < modestr.length() && it != args.end(); i++)
 	{
 		if (modestr.at(i) == '+')
 		{

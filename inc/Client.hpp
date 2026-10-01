@@ -21,7 +21,6 @@
 #include <arpa/inet.h> // for inet_ntoa()
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
-#include "Server.hpp"
 #include "Channel.hpp"
 
 class Client
@@ -48,36 +47,33 @@ class Client
 	void							setFd(int fd); // set fd
 	void							setIpAdd(std::string ipadd);
 
-  	/************************Getter*************************** */
-	int					getFd() const; // getter for fd
-	int					getBufferSize() const;
 
-	
 	/************************Getter*************************** */
 	int								getFd() const; // getter for fd
-  int					      ºgetBufferSize() const;
+	int					      		getBufferSize() const;
 	std::string 					getBuffer() const;
 	std::string						getNick() const;
 	std::string						getPrefix() const;
 	bool							getIsLogged() const;
 	bool							getIsRegistered() const;
-  bool			      	getIsOverSized() const;
+	bool							getIsOverSized() const;
+	std::string						getUser() const;
 
 	/***************************Setter******************************* */
-  void              appendBuffer(const char* data, ssize_t len);
+	void							appendBuffer(const char* data, ssize_t len);
 	void							setBuffer(std::string bytes);
 	void							setLogged(bool state);
 	void							setNick(const std::string& nickname);
-
+	void							setUser(const std::string& username);
+	void							setRegistered();
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();
 	void							clearBuffer();
 
-	bool		isOperator(const Channel& channel) const;
-	bool		inChannel(const Channel& channel) const;
-	bool		isInvited(const Channel& channel) const;
-	bool		isRegistered() const;
-	std::string	nickForReplay() const;
+	bool							isOperator(const Channel& channel) const;
+	bool							inChannel(const Channel& channel) const;
+	bool							isInvited(const Channel& channel) const;
+	std::string						nickForReplay() const;
 };
 
 

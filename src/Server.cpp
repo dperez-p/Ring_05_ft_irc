@@ -22,6 +22,7 @@ Server::Server()
 	this->_serSocketFd = -1;
 	_cmds["PASS"] = &Server::cmdPass;
 	_cmds["NICK"] = &Server::cmdNick;
+	_cmds["USER"] = &Server::cmdUser;
 	/*
 	_cmds["USER"] = &Server::cmd
 	_cmds["QUIT"] = &Server::cmd
@@ -176,23 +177,46 @@ void	Server::cmdPass(Client& client, const Message& msg)
 	if (params[0] == _password)
 	{
 		client.setLogged(true);
-		if (client.isRegistered())
-			send_msg(client, RPL_CONNECTED(client.nickForReplay()));
+		tryRegister(client);
 		return ;
 	}
 	return (send_msg(client, ERR_INCORPASS(client.nickForReplay())));
 }
+
+void	Server::tryRegister(Client& client)
+{
+	bool wasRegistered = client.getIsRegistered();
+
+	client.setRegistered();
+	if (!wasRegistered && client.getIsRegistered())
+		send_msg(client, RPL_CONNECTED(client.nickForReplay()));
+}
+
 static bool specialchar(char c)
 {
 	std::string valids = "[]\\`^_{}|";
 
 	return (valids.find(c) != std::string::npos);
 }
-bool	Server::nickInUse(std::string nick)
+
+static bool	equalNames(const std::string& new_nick, const std::string& old_nick)
 {
-	for (int i = 0; i < _clients.size(); i++)
+	if (new_nick.size() != old_nick.size())
+		return false;
+	for (size_t i = 0; i < new_nick.size(); i++)
 	{
-		if (nick == _clients[i].getNick()) // tolower on both to check character to character :(
+		if (tolower(static_cast<unsigned char>(new_nick[i])) != tolower(static_cast<unsigned char>(old_nick[i])))
+			return false;
+	}
+	return true;
+
+}
+
+bool	Server::nickInUse(Client& client, const std::string& nick)
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if ( client.getFd() != _clients[i].getFd() && equalNames(nick, _clients[i].getNick())) // tolower on both to check character to character :(
 			return true;
 	}
 	return false;
@@ -204,7 +228,7 @@ static bool	validNick(std::string nick)
 		return false;
 	if (!isalpha(static_cast<unsigned char>(nick[0])) && !specialchar(nick[0]))
 		return false;
-	for (int i = 1; i < nick.length(); i++)
+	for (size_t i = 1; i < nick.length(); i++)
 	{
 		unsigned char character = static_cast<unsigned char>(nick[i]);
 		if (!isalnum(character) && !specialchar(nick[i]) && nick[i] != '-')
@@ -212,26 +236,53 @@ static bool	validNick(std::string nick)
 	}
 	return true;
 }
+
 void	Server::cmdNick(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
+	std::string prefix = client.getPrefix();
 
 	if (params.empty() || params[0] == "")
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+		return (send_msg(client, ERR_NONICKNAME(client.nickForReplay())));
 	if (!validNick(params[0]))
-		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay())));
-	if (nickInUse(params[0]))
-		return (send_msg(client, ERR_NICKINUSE(client.getNick())));
+		return (send_msg(client, ERR_ERRONEUSNICK(params[0])));
+	if (nickInUse(client, params[0]))
+		return (send_msg(client, ERR_NICKINUSE(params[0])));
+	bool wasRegistered = client.getIsRegistered();
+	client.setNick(params[0]);
+	tryRegister(client);
+	if (wasRegistered)
+		send_msg(client, RPL_NICKCHANGE(prefix, client.getNick()));
+}
+static bool	emptyParams(std::vector<std::string> params)
+{
+	if (params.empty())
+		return true;
+	for (size_t i = 0; i < params.size(); i++)
+	{
+		if (params[i].empty())
+			return true;
+	}
+	return false;
+}
 
+void	Server::cmdUser(Client& client, const Message& msg)
+{
+	std::vector<std::string> params = msg.getParam();
 
-
+	if (client.getIsRegistered())
+		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
+	if (params.size() < 4 || emptyParams(params))
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[1] != "0" || params[2] != "*")
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	client.setUser(params[0]);
+	tryRegister(client);
 }
 
 static bool	accessCmd(std::string cmd)
 {
-	if (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT")
-		return 1;
-	return 0;
+	return (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT");
 }
 
 void	Server::executeCommand(Client& client, const Message& msg)

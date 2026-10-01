@@ -92,7 +92,7 @@ std::string	Client::getPrefix() const
 }
 
 //Return the client buffer
-const std::string&  Client::getBuffer() const
+std::string	Client::getBuffer() const
 {
 	return (_recvBuffer);
 }
@@ -134,6 +134,17 @@ void	Client::setLogged(bool state)
 void	Client::setNick(const std::string& nickname)
 {
 	_nickname = nickname;
+}
+
+void	Client::setUser(const std::string& username)
+{
+	_username = username;
+}
+
+void	Client::setRegistered()
+{
+	if (!_nickname.empty() && !_username.empty() && _logged)
+		_registered = true;
 }
 
 // split the buffer and erase it
@@ -225,14 +236,13 @@ bool	Client::isInvited(const Channel& channel) const
 	return false;
 }
 
-
-bool	Client::isRegistered() const
-{
-	return (!_nickname.empty() && !_username.empty() && _logged);
-}
-
 std::string	Client::nickForReplay() const
 {
 	if (_nickname.empty()) return ("*");
 	return (_nickname);
+}
+
+std::string	Client::getUser() const
+{
+	return _username;
 }
