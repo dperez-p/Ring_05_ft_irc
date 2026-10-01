@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:14 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/01 18:22:19 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@
 #include <poll.h> // for poll()
 #include <csignal> //for signal()
 #include "Server.hpp"
+#include "Channel.hpp"
 
-class	Channel;
 class Client
 {
   private:
@@ -77,7 +77,7 @@ class Client
 	bool		inChannel(const Channel& channel) const;
 	bool		isInvited(const Channel& channel) const;
 	bool		isRegistered() const;
-	std::string	nickForReplay() const
+	std::string	nickForReplay() const;
 };
 
 

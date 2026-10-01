@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/01 18:20:44 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
+#include "../inc/Channel.hpp"
 
 // Default constructor
 Client::Client()
