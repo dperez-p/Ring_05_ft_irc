@@ -4,6 +4,12 @@ Para Luis: Aqui te dejo unos apuntes que hice para organizarme.  Espero que teng
 Para Rafa: perfe, he entendido lo que necesitas, voy dandole a los comandos de registro que es un poco largo y me pongo con los q involucran a 
 channel, lo único que he tocado tuyo es la función send_msg que le he quitado static para poder llamarla. Ánimo
 
+Para Luis: Hazte una función para MODE que checa que exista el canal como en todas las demás pero que llama a mi Channel::showMode 
+cuando el usuario no le pase un mode_string, y que llame a Channel::setMode cuando sí hay un mode_string y argumentos para esos modes.
+
+Aquí está el prototipo de setMode para que veas qué es lo que me tienes que pasar:
+void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
+
 --------------------
 Commands:
 Luis: parses messages to extract each parameter and passes them into my functions which do the rest of the work.
@@ -83,9 +89,9 @@ yo:
 ERR_CHANOPRIVISNEEDED x
 
 prototype:	static void setMode(modestr, vector<string> args)?
-Luis parses and sends me the args and modestr.  Checks that client is operator and channel exists.
+Luis parses and sends me the args and modestr. x
 
-if no mode string: static showMode.
+if no mode string: static showMode. x
 
 -----------------------------------------------------------------
 TOPIC: e.g. TOPIC #channame :new topic, TOPIC #channame :, TOPIC #Channame

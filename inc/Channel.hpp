@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:04:50 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/01 16:22:42 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class Channel
 		void	kick(Client& kicker, Client& toKick, const std::string& comment);
 		void	invite(Client& inviter, Client& toInvite);
 		void	setTopic(const std::string& topic);
-		void	setInvite(const bool value);
+		void	setInviteOnly(const bool value);
 		void	setTopicLock(const bool value);
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);

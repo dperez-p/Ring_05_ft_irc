@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:07:11 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/01 16:36:32 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void	Channel::setTopic(const std::string& topic)
 	_topic = topic;
 }
 // mode 'i'
-void	Channel::setInvite(const bool value)
+void	Channel::setInviteOnly(const bool value)
 {
 	_inviteOnly = value;
 }
@@ -166,7 +166,8 @@ void	Channel::setKey(const std::string newkey)
 // mode 'l'
 void	Channel::setLimit(int limit)
 {
-	_userLimit = limit;
+	if (limit >= 0)
+		_userLimit = limit;
 }
 
 // mode 'o'
@@ -226,7 +227,7 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 	std::vector<std::string>::iterator it = args.begin();
 	
 	bool	addMode = true;
-	for (int i = 0; i < modestr.length(); i++)
+	for (int i = 0; i < modestr.length() && it != args.end(); i++)
 	{
 		if (modestr.at(i) == '+')
 		{
@@ -238,11 +239,11 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 		}
 		else if (modestr.at(i) == 'i')
 		{
-			this->setInvite((addMode == true ? true : false));
+			this->setInviteOnly(addMode);
 		}
 		else if (modestr.at(i) == 't')
 		{
-			this->setTopicLock((addMode == true ? true : false));
+			this->setTopicLock(addMode);
 		}
 		else if (modestr.at(i) == 'k')
 		{
@@ -250,15 +251,16 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 		}
 		else if (modestr.at(i) == 'o')
 		{
-			this->setOperatorStatus(caller, *it, addMode);
+			this->setOperatorStatus(caller, *it++, addMode);
 		}
 		else if (modestr.at(i) == 'l')
 		{
-			
+			int value = std::atoi((*it++).c_str());
+			this->setLimit((addMode == true ? value : 0));
 		}
 		else
 		{
-			
+			send_msg(caller, ERR_UNKNOWNMODE(caller.getNick(), _name, modestr.at(i)));
 		}
 	}
 }
