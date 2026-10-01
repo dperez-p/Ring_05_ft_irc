@@ -3,18 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 14:18:53 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/01 00:40:43 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include "../inc/Server.hpp"
+#include "../inc/Message.hpp"
+#include "../inc/Client.hpp"
+#include "../inc/Replies.hpp"
+#include "../inc/Channel.hpp"
 
 Server::Server()
 {
 	this->_serSocketFd = -1;
+	_cmds["PASS"] = &Server::cmdPass;
+	_cmds["NICK"] = &Server::cmdNick;
+	/*
+	_cmds["USER"] = &Server::cmd
+	_cmds["QUIT"] = &Server::cmd
+	_cmds["JOIN"] = &Server::cmd
+	_cmds["PART"] = &Server::cmd
+	_cmds["PRIVMSG"] = &Server::cmd
+	_cmds["TOPIC"] = &Server::cmd
+	_cmds["KICK"] = &Server::cmd
+	_cmds["MODE"] = &Server::cmd
+	_cmds["INVITE"] = &Server::cmd
+	*/
 }
 
 Server::~Server()
@@ -56,6 +74,11 @@ Client* Server::getClient(int fd)
 		}
 	}
 	return NULL;
+}
+
+std::string	Server::getPass() const
+{
+	return _password;
 }
 
 // static bool init
@@ -142,6 +165,87 @@ void	Server::disconnectClient(int fd)
 		close(fd);
 }
 
+void	Server::cmdPass(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam();
+
+	if (client.getIsRegistered())
+		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
+	if (params.empty() || params[0] == "")	// u can ignore extra parameters
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[0] == _password)
+	{
+		client.setLogged(true);
+		if (client.isRegistered())
+			send_msg(client, RPL_CONNECTED(client.nickForReplay()));
+		return ;
+	}
+	return (send_msg(client, ERR_INCORPASS(client.nickForReplay())));
+}
+static bool specialchar(char c)
+{
+	std::string valids = "[]\\`^_{}|";
+
+	return (valids.find(c) != std::string::npos);
+}
+bool	Server::nickInUse(std::string nick)
+{
+	for (int i = 0; i < _clients.size(); i++)
+	{
+		if (nick == _clients[i].getNick()) // tolower on both to check character to character :(
+			return true;
+	}
+	return false;
+}
+static bool	validNick(std::string nick)
+{
+
+	if (nick.length() > 9)
+		return false;
+	if (!isalpha(static_cast<unsigned char>(nick[0])) && !specialchar(nick[0]))
+		return false;
+	for (int i = 1; i < nick.length(); i++)
+	{
+		unsigned char character = static_cast<unsigned char>(nick[i]);
+		if (!isalnum(character) && !specialchar(nick[i]) && nick[i] != '-')
+			return false;
+	}
+	return true;
+}
+void	Server::cmdNick(Client& client, const Message& msg)
+{
+	std::vector<std::string> params = msg.getParam();
+
+	if (params.empty() || params[0] == "")
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (!validNick(params[0]))
+		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay())));
+	if (nickInUse(params[0]))
+		return (send_msg(client, ERR_NICKINUSE(client.getNick())));
+
+
+
+}
+
+static bool	accessCmd(std::string cmd)
+{
+	if (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT")
+		return 1;
+	return 0;
+}
+
+void	Server::executeCommand(Client& client, const Message& msg)
+{
+	std::map<std::string, CmdFunc>::iterator it;
+
+	it = _cmds.find(msg.getCmd());
+	if (it == _cmds.end())
+		return (send_msg(client, ERR_CMDNOTFOUND(client.nickForReplay(), msg.getCmd())));
+	if (!client.getIsRegistered() && !accessCmd(it->first))
+		return (send_msg(client, ERR_NOTREGISTERED(client.nickForReplay())));
+	(this->*(it->second))(client, msg);
+}
+
 // New data management
 void	Server::recieveNewData(int fd)
 {
@@ -218,8 +322,8 @@ void	Server::serSocket()
 // server init.
 void	Server::serverInit(int port, const std::string password)
 {
-	_port = port;
-	_password = password;
+	this->_port = port;
+	this->_password = password;
 	serSocket(); // create the server socket
 
 	std::cout << "Server: " << _serSocketFd << " connected." << std::endl;

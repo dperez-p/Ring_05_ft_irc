@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
 /*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
@@ -18,12 +18,11 @@ Client::Client()
 	this->_nickname = "";
 	this->_username = "";
 	this->_fd = -1;
-	this->_isOperator = false;
 	this->_registered = false;
 	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
-	this->_loged = false;
+	this->_logged = false;
 };
 
 Client::Client(std::string nickname, std::string username, int fd)
@@ -31,12 +30,11 @@ Client::Client(std::string nickname, std::string username, int fd)
 	this->_nickname = nickname;
 	this->_username = username;
 	this->_fd = fd;
-	this->_isOperator = false;
 	this->_registered = false;
 	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
-	this->_loged = false;
+	this->_logged = false;
 }
 
 Client::Client(Client const &oth)
@@ -51,11 +49,10 @@ Client& Client::operator=(Client const &oth)
 		this->_nickname = oth._nickname;
 		this->_username = oth._username;
 		this->_fd = oth._fd;
-		this->_isOperator = oth._isOperator;
 		this->_registered = oth._registered;
 		this->_recvBuffer = oth._recvBuffer;
+		this->_logged = oth._logged;
 		this->_overSized = oth._overSized;
-		this->_loged = oth._loged;
 		this->_ipadd = oth._ipadd;
 	}
 	return (*this);
@@ -71,6 +68,26 @@ Client::~Client()
 int Client::getFd() const
 {
 	return (_fd);
+}
+
+bool	Client::getIsLogged() const
+{
+	return _logged;
+}
+
+bool	Client::getIsRegistered() const
+{
+	return _registered;
+}
+
+std::string	Client::getNick() const
+{
+	return (_nickname);
+}
+
+std::string	Client::getPrefix() const
+{
+	return (_nickname + "!" + _username + "@" + _ipadd);
 }
 
 //Return the client buffer
@@ -106,6 +123,16 @@ void	Client::setIpAdd(std::string ipadd)
 void Client::appendBuffer(const char* data, ssize_t len)
 {
 	_recvBuffer.append(data, len);
+}
+
+void	Client::setLogged(bool state)
+{
+	_logged = state;
+}
+
+void	Client::setNick(const std::string& nickname)
+{
+	_nickname = nickname;
 }
 
 // split the buffer and erase it
@@ -155,4 +182,56 @@ std::vector<std::string> Client::splitBuffer()
 		return lines;
 	}
 	return lines;
+}
+
+void	Client::clearBuffer()
+{
+	_recvBuffer.clear();
+}
+
+bool	Client::isOperator(const Channel& channel) const
+{
+	std::vector<Client*> opts = channel.getOperators();
+
+	for (int i = 0; i < (int)opts.size(); i++)
+	{
+		if (opts[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
+}
+
+bool	Client::inChannel(const Channel& channel) const
+{
+	std::vector<Client*> clients = channel.getClients();
+
+	for (int i = 0; i < (int)clients.size(); i++)
+	{
+		if (clients[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
+}
+
+bool	Client::isInvited(const Channel& channel) const
+{
+	std::vector<Client*> invites = channel.getInvites();
+	for (int i = 0; i < (int)invites.size(); i++)
+	{
+		if (invites[i]->getNick() == this->getNick())
+			return true;
+	}
+	return false;
+}
+
+
+bool	Client::isRegistered() const
+{
+	return (!_nickname.empty() && !_username.empty() && _logged);
+}
+
+std::string	Client::nickForReplay() const
+{
+	if (_nickname.empty()) return ("*");
+	return (_nickname);
 }
