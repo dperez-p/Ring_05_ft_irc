@@ -52,6 +52,13 @@ Then connect with any IRC client using the server host and port configured for t
 - The project is intended to be evaluated by correct behavior against the IRC communication requirements described in the subject.
 
 ## Resources
+- Great intro to ft_irc: https://medium.com/@afatir.ahmedfatir/small-irc-server-ft-irc-42-network-7cee848de6f9
+- Modern IRC docs that do into more depth on the requirements: https://modern.ircdocs.horse/
+- RFC 1429: https://www.rfc-editor.org/info/rfc1459/#section-4.2.3
+- Good Youtube video overview of sockets: https://www.youtube.com/watch?v=NvZEZ-mZsuI&t=107s
+- Good overview of TCP: https://www.khanacademy.org/computing/computers-and-internet/xcae6f4a7ff015e7d:the-internet/xcae6f4a7ff015e7d:transporting-packets/a/transmission-control-protocol--tcp
+
+
 
 ### Classic references
 
