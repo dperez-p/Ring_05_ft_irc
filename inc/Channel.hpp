@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:22:42 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/02 10:49:54 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,10 @@ class Channel
 	// For channel operators:
 	// Note: We assume that the client executing these is an operator. No checks.
 		void	addClient(Client& client, const std::string& key);
+		void	part(Client& client, const std::string& comment);
 		void	kick(Client& kicker, Client& toKick, const std::string& comment);
 		void	invite(Client& inviter, Client& toInvite);
+		void	topic(Client& caller, const std::string& newTopic, bool onlyView);
 		void	setTopic(const std::string& topic);
 		void	setInviteOnly(const bool value);
 		void	setTopicLock(const bool value);

@@ -10,6 +10,20 @@ cuando el usuario no le pase un mode_string, y que llame a Channel::setMode cuan
 Para Rafa: Entendido, no me ha dado tiempo, me está consumiendo la vida. El registro está hecho pero falta enviar los mensajes a todos los clients que
 participen con el client que cambien de nick o haga quit, veo q tienes implementado un método, me gusta jajajaj. Te voy diciendo rey. PD: tremendo culo rafa.
 
+Para Luis: Haz una función PART para salirse de varios channels a la vez con tu control de errores habitual.
+Acabo de hacer la que te saca de 1 solo channel para que la uses.  Tambien tengo hecha la de TOPIC pero
+necesito que hagas una para esa también que le pase los parametros.  PD: Me salgo de 42 y me hago un OnlyFans o qué??? 😏
+
+TODO Luis (resumido): Funciones que utilizan las mias
+- JOIN, KICK, INVITE, TOPIC - controlar ERR_NOSUCHCHANNEL y ERR_NEEDMOREPARAMS 
++ pasarle bien los parametros a mis métodos.
+
+- MODE - Lo primero + differenciar entre setMode y showMode y llamar a esos métodos.
+
+- PART - Lo primero pero compruebas la existencia de VARIOS channels
+y llamas a mi método part para cada uno de esos channels.
+
+
 Aquí está el prototipo de setMode para que veas qué es lo que me tienes que pasar:
 void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
 
@@ -104,7 +118,7 @@ Luis:
 if channel doesn't exist ERR_NOSUCHCHANNEL
 
 yo:
-if client not on channel ERR_NOTONCHANNEL 442
-if protected topic ERR_CHANOPRIVISNEEDED 482
-When viewing, RPL_TOPIC or RPL_NOTOPIC
+if client not on channel ERR_NOTONCHANNEL 442 x
+if protected topic ERR_CHANOPRIVISNEEDED 482 x
+When viewing, RPL_TOPIC or RPL_NOTOPIC x
 

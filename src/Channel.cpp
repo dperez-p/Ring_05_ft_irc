@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:36:32 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/02 11:26:14 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,27 @@ const std::string&	Channel::getTopic() const
 // ---------- Channel Operations and Setters -------------
 // channel operator verification occurs OUTSIDE these
 
+void	Channel::part(Client& client, const std::string& comment)
+{
+	int i = search(client.getNick(), _clients);
+	if (i == -1)
+		return send_msg(client, ERR_NOTONCHANNEL(client.getNick(), _name));
+	
+	_clients.erase(_clients.begin() + i);
+	
+	i = search(client.getNick(), _operators);
+	if (i != -1)
+		_operators.erase(_operators.begin() + i);
+	
+	i = search(client.getNick(), _invited);
+	if (i != -1)
+		_invited.erase(_invited.begin() + i);
+	
+	std::string partMsg = 
+	":" + client.getPrefix() + " PART #" + _name + " :" + comment + CRLF;
+	broadcast(partMsg);
+}
+
 void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 {
 	int i;
@@ -120,7 +141,7 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 		_operators.erase(_operators.begin() + i);
 
 	std::string kickMsg =
-	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + "\r\n";
+	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + CRLF;
 	broadcast(kickMsg);
 }
 
@@ -179,7 +200,7 @@ void	Channel::setOperatorStatus(Client& setter, const std::string& nickname, boo
 	if (i == -1)
 		return send_msg(setter, ERR_USERNOTINCHANNEL(setter.getNick(), nickname, _name));
 
-	if (search(setter.getNick(), _operators) == -1)
+	if (search(setter.getNick(), _operators) == -1) // might be redundant bc I check in setMode
 		return send_msg(setter, ERR_CHANOPRIVSNEEDED(setter.getNick(), _name));
 
 	if (setting == true && search(nickname, _operators) != -1)
@@ -270,7 +291,6 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 	}
 }
 
-
 void Channel::broadcast(const std::string& message, const Client* exclude)
 {
 	for (size_t i = 0; i < _clients.size(); ++i)
@@ -304,14 +324,9 @@ void	Channel::addClient(Client& client, const std::string& key)
 	}
 
 	// Remove from _invited
-	for (int i = 0; i < static_cast<int>(_invited.size()); i++)
-	{
-		if (client.getNick() == _invited[i]->getNick())
-		{
-			_invited.erase(_invited.begin() + i);
-			break ;
-		}
-	}
+	int i = search(client.getNick(), _invited);
+	if (i != -1)
+		_invited.erase(_invited.begin() + i);
 
 	if (_clients.size() == 0)
 	{
@@ -325,13 +340,9 @@ void	Channel::addClient(Client& client, const std::string& key)
 
 	// Send Topic Reply (RPL_TOPIC 332 or RPL_NOTOPIC 331)
 	if (!_topic.empty())
-	{
 		send_msg(client, RPL_TOPICIS(client.getNick(), _name, _topic));
-	}
 	else
-	{
 		send_msg(client, RPL_NOTOPIC(client.getNick(), _name));
-	}
 
 	// Member List Sequence (RPL_NAMREPLY 353 & RPL_ENDOFNAMES 366)
 	std::string names;
@@ -346,4 +357,28 @@ void	Channel::addClient(Client& client, const std::string& key)
 
 	send_msg(client, RPL_NAMREPLY(client.getNick(), _name, names));
 	send_msg(client, RPL_ENDOFNAMES(client.getNick(), _name));
+}
+
+// onlyView is there to differentiate between "TOPIC #channel :" (clear topic) and "TOPIC #channel" (view topic).
+void	Channel::topic(Client& caller, const std::string& newTopic, bool onlyView)
+{
+	if (search(caller.getNick(), _clients) == -1)
+		return send_msg(caller, ERR_NOTONCHANNEL(caller.getNick(), _name));
+	
+	if (_protectedTopic && search(caller.getNick(), _operators) == -1)
+		return send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
+	
+	if (!onlyView)
+	{
+		_topic = newTopic;
+		// topic change message
+		std::string topicChangeMsg =
+		caller.getPrefix() + " TOPIC #" + _name + " :" + newTopic + CRLF;
+		return broadcast(topicChangeMsg);
+	}
+	
+	if (!_topic.empty())
+		send_msg(caller, RPL_TOPICIS(caller.getNick(), _name, _topic));
+	else
+		send_msg(caller, RPL_NOTOPIC(caller.getNick(), _name));
 }
