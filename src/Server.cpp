@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 12:54:05 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 13:52:32 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,15 @@ void	Server::closeFds()
 //clear clients
 void	Server::clearClients(int fd)
 {
+	Client* client = getClient(fd);
+
+	if (client)
+	{
+		for (size_t i = 0; i < _channel.size(); i++)
+		{
+			_channel[i].removeClient(*client);
+		}
+	}
 	for (size_t i = 0; i < _fds.size(); i++) // remove the client from the pollfd
 	{
 		if (_fds[i].fd == fd)

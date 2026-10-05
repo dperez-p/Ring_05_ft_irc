@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:07:11 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/05 13:52:17 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,23 +122,44 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 	broadcast(kickMsg);
 }
 
+void	Channel::removeClient(Client& client)
+{
+	int	i = search(client.getNick(), _clients);
+	if (i == -1) // not in this channel
+		return ;
+	_clients.erase(_clients.begin() + i);
+
+	i = search(client.getNick(), _invited);
+	if (i > -1)
+	{
+		_invited.erase(_invited.begin() + i);
+	}
+
+	i = search(client.getNick(), _operators);
+	if (i > -1)
+		_operators.erase(_operators.begin() + i);
+
+	std::string quitMsg = ":" + client.getPrefix() + " QUIT :Connection closed" + CRLF;
+	broadcast(quitMsg);
+}
+
 void	Channel::invite(Client& inviter, Client& toInvite)
 {
 	if (search(inviter.getNick(), _clients) == -1)
 		return send_msg(inviter, ERR_NOTONCHANNEL(inviter.getNick(), _name));
-	
+
 	if (_inviteOnly && search(inviter.getNick(), _operators) == -1)
 		return send_msg(inviter, ERR_CHANOPRIVSNEEDED(inviter.getNick(), _name));
-	
+
 	if (search(toInvite.getNick(), _clients) != -1)
 		return send_msg(inviter, ERR_USERONCHANNEL(inviter.getNick(), toInvite.getNick(), _name));
-	
-	if (search(toInvite.getNick(), _invited) != -1)
+
+	if (search(toInvite.getNick(), _invited) == -1)
 		_invited.push_back(&toInvite);
 
 	// Reply to inviter
 	send_msg(inviter, RPL_INVITING(inviter.getNick(), toInvite.getNick(), _name));
-	
+
 	// Message to invitee
 	std::string inviteMsg = ":" + inviter.getPrefix() + " INVITE " + toInvite.getNick() + " #" + _name + CRLF;
 	send_msg(toInvite, inviteMsg);
@@ -175,11 +196,11 @@ void	Channel::setOperatorStatus(Client& setter, const std::string& nickname, boo
 	int i = search(nickname, _clients);
 	if (i == -1)
 		return send_msg(setter, ERR_USERNOTINCHANNEL(setter.getNick(), nickname, _name));
-	
+
 	if (search(setter.getNick(), _operators) == -1)
 		return send_msg(setter, ERR_CHANOPRIVSNEEDED(setter.getNick(), _name));
-	
-	if (setting == true && search(nickname, _operators) != -1)
+
+	if (setting == true && search(nickname, _operators) == -1)
 		return _operators.push_back(_clients[i]);
 	else if (setting == false)
 	{
@@ -222,9 +243,9 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 {
 	if (search(caller.getNick(), _operators) == -1)
 		send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
-	
+
 	std::vector<std::string>::iterator it = args.begin();
-	
+
 	bool	addMode = true;
 	for (int i = 0; i < modestr.length(); i++)
 	{
@@ -254,11 +275,11 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 		}
 		else if (modestr.at(i) == 'l')
 		{
-			
+
 		}
 		else
 		{
-			
+
 		}
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 16:04:50 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/05 13:17:11 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ class Channel
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);
 		void	setOperatorStatus(Client& setter, const std::string& nickname, bool setting);
+		void	removeClient(Client& client);
 
 		const std::string&	getTopic() const;
 		const std::vector<Client*>&	getOperators() const;
