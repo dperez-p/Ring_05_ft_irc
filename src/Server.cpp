@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/04 23:39:19 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 13:52:32 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,6 @@ Server::Server()
 	_cmds["NICK"] = &Server::cmdNick;
 	_cmds["USER"] = &Server::cmdUser;
 	_cmds["PRIVMSG"] = &Server::cmdPrivmsg;
-	/*
-	_cmds["QUIT"] = &Server::cmd
-	_cmds["JOIN"] = &Server::cmd
-	_cmds["PART"] = &Server::cmd
-
-	_cmds["TOPIC"] = &Server::cmd
-	_cmds["KICK"] = &Server::cmd
-	_cmds["MODE"] = &Server::cmd
-	_cmds["INVITE"] = &Server::cmd
-	*/
 }
 
 Server::~Server()
@@ -65,15 +55,13 @@ int	Server::getSerSocketFd() const
 	return (_serSocketFd);
 }
 
-//Get client Fd from the server vector
+//Get client Fd from the server map
 Client* Server::getClient(int fd)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
+	std::map<int, Client>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
 	{
-		if (_clients[i].getFd() == fd)
-		{
-			return &_clients[i];
-		}
+		return &(it->second);
 	}
 	return NULL;
 }
@@ -95,10 +83,10 @@ void	Server::signalHandler(int signum)
 // close cleints from the server and the server socket.
 void	Server::closeFds()
 {
-	for (size_t i = 0; i < _clients.size(); i++) // close all clients
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		std::cout << "Client <" << _clients[i].getFd() << " Disconected." << std::endl;
-		close(_clients[i].getFd());
+		std::cout << "Client <" << it->second.getFd() << " Disconected." << std::endl;
+		close(it->second.getFd());
 	}
 	if (_serSocketFd != -1) // close the server socket.
 	{
@@ -110,6 +98,15 @@ void	Server::closeFds()
 //clear clients
 void	Server::clearClients(int fd)
 {
+	Client* client = getClient(fd);
+
+	if (client)
+	{
+		for (size_t i = 0; i < _channel.size(); i++)
+		{
+			_channel[i].removeClient(*client);
+		}
+	}
 	for (size_t i = 0; i < _fds.size(); i++) // remove the client from the pollfd
 	{
 		if (_fds[i].fd == fd)
@@ -118,14 +115,7 @@ void	Server::clearClients(int fd)
 			break ;
 		}
 	}
-	for (size_t i = 0; i < _clients.size(); i++) // remove client from the vector of clients
-	{
-		if (_clients[i].getFd() == fd)
-		{
-			_clients.erase(_clients.begin() + i);
-			break ;
-		}
-	}
+	_clients.erase(fd); // remove client from the map of clients
 }
 
 // accept new client, kernel checks for the process fd number empty
@@ -154,7 +144,7 @@ void	Server::acceptNewClient()
 
 	cli.setFd(incfd); // set the client file descriptor
 	cli.setIpAdd(inet_ntoa((cliadd.sin_addr))); // convert the ipaddress to string and set
-	_clients.push_back(cli); // add client to the vector of clients
+	_clients.insert(std::make_pair(incfd, cli)); // add client to the vector of clients
 	_fds.push_back(newPoll); // add the client socket to the pollfdl
 
 	std::cout << "Client <" << incfd << "> connection established" << std::endl;
@@ -174,7 +164,7 @@ void	Server::cmdPass(Client& client, const Message& msg)
 	if (client.getIsRegistered())
 		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
 	if (params.empty() || params[0] == "")	// u can ignore extra parameters
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay(), msg.getCmd())));
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
 	if (params[0] == _password)
 	{
 		client.setLogged(true);
@@ -192,32 +182,26 @@ void	Server::tryRegister(Client& client)
 	if (!wasRegistered && client.getIsRegistered())
 		send_msg(client, RPL_CONNECTED(client.nickForReplay()));
 }
-
 static bool specialchar(char c)
 {
 	std::string valids = "[]\\`^_{}|";
 
 	return (valids.find(c) != std::string::npos);
 }
-
-static bool	equalNames(const std::string& new_nick, const std::string& old_nick)
+bool	Server::nickInUse(std::string nick)
 {
-	if (new_nick.size() != old_nick.size())
-		return false;
-	for (size_t i = 0; i < new_nick.size(); i++)
+	for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		if (tolower(static_cast<unsigned char>(new_nick[i])) != tolower(static_cast<unsigned char>(old_nick[i])))
-			return false;
-	}
-	return true;
-
-}
-
-bool	Server::nickInUse(Client& client, const std::string& nick)
-{
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if ( client.getFd() != _clients[i].getFd() && equalNames(nick, _clients[i].getNick())) // tolower on both to check character to character :(
+		if (nick.size() != it->second.getNick().size())
+			continue;
+		bool equal = true;
+		for (size_t i = 0; i < nick.size(); ++i)
+		{
+			if (std::tolower(static_cast<unsigned char>(nick[i])) !=
+				std::tolower(static_cast<unsigned char>(it->second.getNick()[i])))
+				equal = false;
+		}
+		if (equal)
 			return true;
 	}
 	return false;
@@ -237,48 +221,35 @@ static bool	validNick(std::string nick)
 	}
 	return true;
 }
-
 void	Server::cmdNick(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
-	std::string prefix = client.getPrefix();
 
 	if (params.empty() || params[0] == "")
 		return (send_msg(client, ERR_NONICKNAME(client.nickForReplay())));
 	if (!validNick(params[0]))
-		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay(), params[0])));
+		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay())));
 	if (params[0] == client.getNick())
 		return ;
-	if (nickInUse(client, params[0]))
-		return (send_msg(client, ERR_NICKINUSE(client.nickForReplay(), params[0])));
+	if (nickInUse(params[0]))
+		return (send_msg(client, ERR_NICKINUSE(client.nickForReplay())));
 	bool wasRegistered = client.getIsRegistered();
+	std::string oldPrefix = client.getPrefix();
 	client.setNick(params[0]);
 	tryRegister(client);
 	if (wasRegistered)
-		send_msg(client, RPL_NICKCHANGE(prefix, client.getNick()));
+		send_msg(client, RPL_NICKCHANGE(oldPrefix, client.getNick()));
+
 }
-static bool	emptyParams(std::vector<std::string> params)
-{
-	if (params.empty())
-		return true;
-	for (size_t i = 0; i < params.size(); i++)
-	{
-		if (params[i].empty())
-			return true;
-	}
-	return false;
-}
+
 
 void	Server::cmdUser(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
-
 	if (client.getIsRegistered())
 		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
-	if (params.size() < 4 || emptyParams(params))
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay(), msg.getCmd())));
-	/*if (params[1] != "0" || params[2] != "*")
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));*/
+	if (params.size() < 4)
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
 	client.setUser(params[0]);
 	tryRegister(client);
 }
@@ -286,16 +257,27 @@ void	Server::cmdUser(Client& client, const Message& msg)
 void	Server::cmdPrivmsg(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
-
 	if (params.empty())
 		return (send_msg(client, ERR_NORECIPIENT(client.nickForReplay(), msg.getCmd())));
-	if (params[1].empty())
+	if (params.size() < 2 || params[1].empty())
 		return (send_msg(client, ERR_NOTEXTTOSEND(client.nickForReplay())));
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second.getNick() == params[0])
+		{
+			std::string message = ":" + client.getPrefix() + " PRIVMSG " + params[0] + " :" + params[1] + CRLF;
+			send_msg(it->second, message);
+			return ;
+		}
+	}
+	send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), params[0]));
 }
 
 static bool	accessCmd(std::string cmd)
 {
-	return (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT");
+	if (cmd == "PASS" || cmd == "NICK" || cmd == "USER" || cmd == "QUIT")
+		return 1;
+	return 0;
 }
 
 void	Server::executeCommand(Client& client, const Message& msg)
@@ -350,6 +332,7 @@ void	Server::serSocket()
 	struct	sockaddr_in	add; // default sockeadd structure.
 	struct	pollfd	newPoll; //default poll structure.
 	add.sin_family = AF_INET; // set the address family to IPV4
+	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_addr.s_addr = INADDR_ANY; // set the adress to any Local machine address
 

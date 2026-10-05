@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/01 18:20:44 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/05 12:52:01 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ std::string	Client::getPrefix() const
 }
 
 //Return the client buffer
-std::string	Client::getBuffer() const
+const std::string&  Client::getBuffer() const
 {
 	return (_recvBuffer);
 }
@@ -143,8 +143,7 @@ void	Client::setUser(const std::string& username)
 
 void	Client::setRegistered()
 {
-	if (!_nickname.empty() && !_username.empty() && _logged)
-		_registered = true;
+	_registered = (_logged && !_nickname.empty() && !_username.empty());
 }
 
 // split the buffer and erase it
@@ -236,13 +235,14 @@ bool	Client::isInvited(const Channel& channel) const
 	return false;
 }
 
+
+bool	Client::isRegistered() const
+{
+	return _registered;
+}
+
 std::string	Client::nickForReplay() const
 {
 	if (_nickname.empty()) return ("*");
 	return (_nickname);
-}
-
-std::string	Client::getUser() const
-{
-	return _username;
 }
