@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 17:54:59 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,5 +89,5 @@
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
 
-
+#define PRIVMSG_MESSAGE(prefix, target, text)	(":" + prefix + " PRIVMSG " + target + " :" + text + CRLF)
 

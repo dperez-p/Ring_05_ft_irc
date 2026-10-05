@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 21:26:59 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,13 +239,12 @@ void	Server::cmdNick(Client& client, const Message& msg)
 	tryRegister(client);
 	if (wasRegistered)
 		send_msg(client, RPL_NICKCHANGE(oldPrefix, client.getNick()));
-
 }
-
 
 void	Server::cmdUser(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
+
 	if (client.getIsRegistered())
 		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
 	if (params.size() < 4)
@@ -254,23 +253,73 @@ void	Server::cmdUser(Client& client, const Message& msg)
 	tryRegister(client);
 }
 
+std::vector<std::string> splitCommas(std::string params)
+{
+	std::vector<std::string>	targets;
+	size_t 						pos = params.find(',');
+
+	while (pos != std::string::npos)
+	{
+		targets.push_back(params.substr(0, pos));
+		params.erase(0, pos + 1);
+		pos = params.find(',');
+	}
+	if (!params.empty())
+		targets.push_back(params);
+
+	return targets;
+}
+
+bool	Server::fndUser(Client& client, std::vector<std::string>& params, std::string& target)
+{
+	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second.getNick() == target)
+		{
+			send_msg(it->second, PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]));
+			return true;
+		}
+	}
+	return false;
+
+}
+
+bool	Server::fndChannel(Client& client, std::vector<std::string>& params, std::string& target)
+{
+	std::string chan_name = target.erase(0,1);
+
+	for (std::vector<Channel>::iterator it = _channel.begin(); it != _channel.end(); ++it)
+	{
+		if (it->getName() == chan_name)
+		{
+			send_msg(client, PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]));
+			return true;
+		}
+	}
+	return false;
+
+}
+
 void	Server::cmdPrivmsg(Client& client, const Message& msg)
 {
-	std::vector<std::string> params = msg.getParam();
+	std::vector<std::string> params = msg.getParam(), targets;
+	bool found;
+
 	if (params.empty())
 		return (send_msg(client, ERR_NORECIPIENT(client.nickForReplay(), msg.getCmd())));
 	if (params.size() < 2 || params[1].empty())
 		return (send_msg(client, ERR_NOTEXTTOSEND(client.nickForReplay())));
-	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	targets = splitCommas(params[0]);
+	for (size_t i = 0; i < targets.size(); i++)
 	{
-		if (it->second.getNick() == params[0])
-		{
-			std::string message = ":" + client.getPrefix() + " PRIVMSG " + params[0] + " :" + params[1] + CRLF;
-			send_msg(it->second, message);
-			return ;
-		}
+		found = false;
+		if (targets[i][0] == '#')
+			found = fndChannel(client, params, targets[i]);
+		else
+			found = fndUser(client, params, targets[i]);
+		if (!found)
+			send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), targets[i]));
 	}
-	send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), params[0]));
 }
 
 static bool	accessCmd(std::string cmd)

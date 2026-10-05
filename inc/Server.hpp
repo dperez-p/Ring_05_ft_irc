@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 21:26:12 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ class Server
 		std::string _password;
 		typedef void (Server::*CmdFunc)(Client&, const Message&);	// alias for the map
 		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
-
 	public:
 		Server();
 		Server(Server const &oth);
@@ -90,4 +89,7 @@ class Server
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
 		void	cmdTry(std::string cmd, Client& client, const Message& msg);
+
+		bool	fndUser(Client& client, std::vector<std::string>& params, std::string& target);
+		bool	fndChannel(Client& client, std::vector<std::string>& params, std::string& target);
 };

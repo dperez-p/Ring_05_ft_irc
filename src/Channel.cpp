@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 21:20:13 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,10 @@ const std::string&	Channel::getTopic() const
 	return _topic;
 }
 
+const std::string& Channel::getName() const
+{
+	return _name;
+}
 // ---------- Channel Operations and Setters -------------
 // channel operator verification occurs OUTSIDE these
 

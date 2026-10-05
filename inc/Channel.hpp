@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/05 13:17:11 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 21:19:07 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,12 @@ class Channel
 		void	setOperatorStatus(Client& setter, const std::string& nickname, bool setting);
 		void	removeClient(Client& client);
 
-		const std::string&	getTopic() const;
+		const std::string&			getTopic() const;
 		const std::vector<Client*>&	getOperators() const;
 		const std::vector<Client*>&	getClients() const;
 		const std::vector<Client*>&	getInvites() const;
+		const std::string& 			getName() const;
+
 		bool	isInviteOnly() const;
 
 
