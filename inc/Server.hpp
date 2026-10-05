@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 21:26:12 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 22:14:02 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,6 @@ class Server
 		void	cmdKick(Client& client, const Message& msg);
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
-		void	cmdTry(std::string cmd, Client& client, const Message& msg);
 
 		bool	fndUser(Client& client, std::vector<std::string>& params, std::string& target);
 		bool	fndChannel(Client& client, std::vector<std::string>& params, std::string& target);

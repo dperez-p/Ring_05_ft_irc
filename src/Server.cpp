@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 21:26:59 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 22:15:04 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ Server::Server()
 	_cmds["NICK"] = &Server::cmdNick;
 	_cmds["USER"] = &Server::cmdUser;
 	_cmds["PRIVMSG"] = &Server::cmdPrivmsg;
+	_cmds["QUIT"] = &Server::cmdQuit;
 }
 
 Server::~Server()
@@ -292,7 +293,9 @@ bool	Server::fndChannel(Client& client, std::vector<std::string>& params, std::s
 	{
 		if (it->getName() == chan_name)
 		{
-			send_msg(client, PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]));
+			if (!client.inChannel(*it))
+				return false;
+			it->broadcast(PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]), &client);
 			return true;
 		}
 	}
@@ -320,6 +323,12 @@ void	Server::cmdPrivmsg(Client& client, const Message& msg)
 		if (!found)
 			send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), targets[i]));
 	}
+}
+
+void	Server::cmdQuit(Client& client, const Message& msg)
+{
+	static_cast<void>(msg);
+	disconnectClient(client.getFd());
 }
 
 static bool	accessCmd(std::string cmd)
