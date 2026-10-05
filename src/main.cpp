@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 12:11:34 by dperez-p          #+#    #+#             */
 /*   Updated: 2026/09/24 13:49:53 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
-#include "Client.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Client.hpp"
+#include <stdlib.h>
 
 static bool validPort(const std::string &port)
 {
@@ -43,6 +44,7 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
+		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
 		{
 			std::cout << "Invalid port number / Password." << std::endl;

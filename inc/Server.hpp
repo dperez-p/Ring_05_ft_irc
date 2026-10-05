@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
 /*   Updated: 2026/09/24 12:48:10 by dperez-p         ###   ########.fr       */
@@ -15,6 +15,7 @@
 #include "Client.hpp"
 #include <iostream>
 #include <vector>
+#include <map>
 #include <sys/socket.h> //socket()
 #include <sys/types.h> //for socket() too
 #include <netinet/in.h> // sockaddr_in()
@@ -24,10 +25,17 @@
 #include <csignal> //for signal()
 #include <sstream>
 #include <cstring>
+#include <cctype>
+#include <unistd.h>
+#include <cstdlib>
+
+
 
 
 class Client;
 class Channel;
+class Message;
+
 
 class Server
 {
@@ -39,7 +47,8 @@ class Server
 		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
 		std::string _password;
-
+		typedef void (Server::*CmdFunc)(Client&, const Message&);	// alias for the map
+		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
 
 	public:
 		Server();
@@ -51,6 +60,7 @@ class Server
 		void	serSocket(); // server socket creation
 		void	acceptNewClient(); // accept new client
 		void	recieveNewData(int fd); // recieve new data from a registered client
+		void	disconnectClient(int fd);
 
 		static void signalHandler(int signum); // signal handler
 
@@ -58,6 +68,26 @@ class Server
 		void	clearClients(int fd); // clear clients
 
 		// GETTERS
-		int	getSerSocketFd() const;
+		int					    getSerSocketFd() const;
+		Client* 			  getClient(int fd);
+		std::string			getPass()	const;
+
+		//---------EXECUTION--------
+		void			executeCommand(Client& client, const Message& msg);
+		bool			nickInUse(std::string nick);
+
+		//-----------CMDS----------------
+		void	cmdPass(Client& client, const Message& msg);
+		void	cmdNick(Client& client, const Message& msg);
+		void	cmdUser(Client& client, const Message& msg);
+		void	cmdQuit(Client& client, const Message& msg);
+		void	cmdJoin(Client& client, const Message& msg);
+		void	cmdPart(Client& client, const Message& msg);
+		void	cmdPrivmsg(Client& client, const Message& msg);
+		void	cmdTopic(Client& client, const Message& msg);
+		void	cmdKick(Client& client, const Message& msg);
+		void	cmdMode(Client& client, const Message& msg);
+		void	cmdInvite(Client& client, const Message& msg);
+		void	cmdTry(std::string cmd, Client& client, const Message& msg);
 		Client* getClient(int fd);
 };
