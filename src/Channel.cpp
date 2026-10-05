@@ -156,7 +156,7 @@ void	Channel::invite(Client& inviter, Client& toInvite)
 	if (search(toInvite.getNick(), _clients) != -1)
 		return send_msg(inviter, ERR_USERONCHANNEL(inviter.getNick(), toInvite.getNick(), _name));
 
-	if (search(toInvite.getNick(), _invited) != -1)
+	if (search(toInvite.getNick(), _invited) == -1)
 		_invited.push_back(&toInvite);
 
 	// Reply to inviter
@@ -203,7 +203,7 @@ void	Channel::setOperatorStatus(Client& setter, const std::string& nickname, boo
 	if (search(setter.getNick(), _operators) == -1) // might be redundant bc I check in setMode
 		return send_msg(setter, ERR_CHANOPRIVSNEEDED(setter.getNick(), _name));
 
-	if (setting == true && search(nickname, _operators) != -1)
+	if (setting == true && search(nickname, _operators) == -1)
 		return _operators.push_back(_clients[i]);
 	else if (setting == false)
 	{

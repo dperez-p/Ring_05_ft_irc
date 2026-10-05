@@ -57,6 +57,7 @@ Then connect with any IRC client using the server host and port configured for t
 - RFC 1429: https://www.rfc-editor.org/info/rfc1459/#section-4.2.3
 - Good Youtube video overview of sockets: https://www.youtube.com/watch?v=NvZEZ-mZsuI&t=107s
 - Good overview of TCP: https://www.khanacademy.org/computing/computers-and-internet/xcae6f4a7ff015e7d:the-internet/xcae6f4a7ff015e7d:transporting-packets/a/transmission-control-protocol--tcp
+- Listening vs. Connection Sockets: https://www.microsabio.net/dist/70rel/doc/ashref/listeningvs_connectionsockets.htm
 
 
 
