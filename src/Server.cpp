@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/01 00:40:43 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/04 23:39:19 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,16 @@
 Server::Server()
 {
 	this->_serSocketFd = -1;
+	this->_port = 0;
 	_cmds["PASS"] = &Server::cmdPass;
 	_cmds["NICK"] = &Server::cmdNick;
 	_cmds["USER"] = &Server::cmdUser;
+	_cmds["PRIVMSG"] = &Server::cmdPrivmsg;
 	/*
-	_cmds["USER"] = &Server::cmd
 	_cmds["QUIT"] = &Server::cmd
 	_cmds["JOIN"] = &Server::cmd
 	_cmds["PART"] = &Server::cmd
-	_cmds["PRIVMSG"] = &Server::cmd
+
 	_cmds["TOPIC"] = &Server::cmd
 	_cmds["KICK"] = &Server::cmd
 	_cmds["MODE"] = &Server::cmd
@@ -173,7 +174,7 @@ void	Server::cmdPass(Client& client, const Message& msg)
 	if (client.getIsRegistered())
 		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
 	if (params.empty() || params[0] == "")	// u can ignore extra parameters
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay(), msg.getCmd())));
 	if (params[0] == _password)
 	{
 		client.setLogged(true);
@@ -245,9 +246,11 @@ void	Server::cmdNick(Client& client, const Message& msg)
 	if (params.empty() || params[0] == "")
 		return (send_msg(client, ERR_NONICKNAME(client.nickForReplay())));
 	if (!validNick(params[0]))
-		return (send_msg(client, ERR_ERRONEUSNICK(params[0])));
+		return (send_msg(client, ERR_ERRONEUSNICK(client.nickForReplay(), params[0])));
+	if (params[0] == client.getNick())
+		return ;
 	if (nickInUse(client, params[0]))
-		return (send_msg(client, ERR_NICKINUSE(params[0])));
+		return (send_msg(client, ERR_NICKINUSE(client.nickForReplay(), params[0])));
 	bool wasRegistered = client.getIsRegistered();
 	client.setNick(params[0]);
 	tryRegister(client);
@@ -273,11 +276,21 @@ void	Server::cmdUser(Client& client, const Message& msg)
 	if (client.getIsRegistered())
 		return (send_msg(client, ERR_ALREADYREGISTERED(client.nickForReplay())));
 	if (params.size() < 4 || emptyParams(params))
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
-	if (params[1] != "0" || params[2] != "*")
-		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay(), msg.getCmd())));
+	/*if (params[1] != "0" || params[2] != "*")
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));*/
 	client.setUser(params[0]);
 	tryRegister(client);
+}
+
+void	Server::cmdPrivmsg(Client& client, const Message& msg)
+{
+	std::vector<std::string> params = msg.getParam();
+
+	if (params.empty())
+		return (send_msg(client, ERR_NORECIPIENT(client.nickForReplay(), msg.getCmd())));
+	if (params[1].empty())
+		return (send_msg(client, ERR_NOTEXTTOSEND(client.nickForReplay())));
 }
 
 static bool	accessCmd(std::string cmd)

@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/27 13:27:14 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/29 22:48:51 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/04 22:43:11 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ Message::Message(std::string line)
         }
         pos = line.find(' ');
         _params.push_back(line.substr(0, pos));
+        if (_params.back() == "")
+            _params.pop_back();
     }
 }
 Message::Message(const Message& other)

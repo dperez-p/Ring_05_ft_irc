@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 13:14:03 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/04 23:36:41 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #define CRLF "\r\n"
 
-#define RPL_CONNECTED(nickname) (":ircserv 001 " + nickname + " : Welcome to the IRC server!" + CRLF)
+#define RPL_CONNECTED(nick)	(":ircserv 001 " + nick + " :Welcome to the IRC server!" + CRLF)
 
 #define RPL_UMODEIS(hostname, channelname, mode, user)  (":" + hostname + " MODE " + channelname + " " + mode + " " + user + CRLF)
 
@@ -50,7 +50,7 @@
 
 #define ERR_UNKNOWNMODE(nickname, channelname, mode) (":ircserv 472 " + nickname + " #" + channelname + " " + mode + " :is not a recognised channel mode" + CRLF)
 
-#define ERR_NOTENOUGHPARAM(nickname) (":ircserv 461 " + nickname + " :Not enough parameters." + CRLF)
+#define ERR_NOTENOUGHPARAM(nickname, cmd) (":ircserv 461 " + nickname + " " + cmd + " :Not enough parameters." + CRLF)
 
 #define ERR_CHANNELNOTFOUND(nickname, channelname) (":ircserv 403 " + nickname + " #" + channelname + " :No such channel" + CRLF)
 
@@ -70,9 +70,9 @@
 
 #define ERR_NONICKNAME(nickname) (":ircserv 431 " + nickname + " :No nickname given" + CRLF )
 
-#define ERR_NICKINUSE(nickname) (":ircserv 433 " + nickname + " :Nickname is already in use" + CRLF)
+#define ERR_NICKINUSE(nickname, askNick) (":ircserv 433 " + nickname + " " + askNick + " :Nickname is already in use" + CRLF)
 
-#define ERR_ERRONEUSNICK(nickname) (":ircserv 432 " + nickname + " :Erroneus nickname" + CRLF)
+#define ERR_ERRONEUSNICK(nickname, askNick) (":ircserv 432 " + nickname + " " + askNick + " :Erroneous nickname" + CRLF)
 
 #define ERR_NOTREGISTERED(nickname) (":ircserv 451 " + nickname + " :You have not registered!" + CRLF)
 
@@ -86,5 +86,7 @@
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
 
+#define ERR_NORECIPIENT(nick, cmd)	(":ircserv 411 " + nick + " :No recipient given (" + cmd + ")" + CRLF)
 
+#define ERR_NOTEXTTOSEND(nick)		(":ircserv 412 " + nick + " :No text to send" + CRLF)
 
