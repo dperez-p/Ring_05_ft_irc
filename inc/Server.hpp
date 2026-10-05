@@ -90,4 +90,7 @@ class Server
 		void	cmdInvite(Client& client, const Message& msg);
 		void	cmdTry(std::string cmd, Client& client, const Message& msg);
 		Client* getClient(int fd);
+
+
+		esto es un testeo de git
 };

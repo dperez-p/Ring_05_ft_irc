@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 12:38:34 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 12:54:05 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,10 +252,12 @@ void	Server::recieveNewData(int fd)
 	if (bytes <= 0) // check if the client disconnected
 	{
 		disconnectClient(fd);
+		disconnectClient(fd);
 		return ;
 	}
 	else // print the recieved data
 	{
+		actualClient->appendBuffer(buff, bytes);
 		actualClient->appendBuffer(buff, bytes);
 		std::vector<std::string> commands = actualClient->splitBuffer();
 		if (actualClient->getIsOverSized())
@@ -263,8 +265,15 @@ void	Server::recieveNewData(int fd)
 			disconnectClient(fd);
 			return ;
 		}
+		if (actualClient->getIsOverSized())
+		{
+			disconnectClient(fd);
+			return ;
+		}
 		for (size_t i = 0; i < commands.size(); i++)
 		{
+			Message Current(commands[i]);
+			executeCommand(*actualClient, Current);
 			Message Current(commands[i]);
 			executeCommand(*actualClient, Current);
 		}
@@ -277,6 +286,7 @@ void	Server::serSocket()
 	struct	sockaddr_in	add; // default sockeadd structure.
 	struct	pollfd	newPoll; //default poll structure.
 	add.sin_family = AF_INET; // set the address family to IPV4
+	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_port = htons(this->_port); // conver te port to network by order (big endian)
 	add.sin_addr.s_addr = INADDR_ANY; // set the adress to any Local machine address
 

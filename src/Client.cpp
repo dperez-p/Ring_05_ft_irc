@@ -3,13 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 12:52:01 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../inc/Client.hpp"
 #include "../inc/Client.hpp"
 
 // Default constructor
@@ -19,6 +20,7 @@ Client::Client()
 	this->_username = "";
 	this->_fd = -1;
 	this->_registered = false;
+	this->_overSized = false;
 	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
@@ -31,6 +33,7 @@ Client::Client(std::string nickname, std::string username, int fd)
 	this->_username = username;
 	this->_fd = fd;
 	this->_registered = false;
+	this->_overSized = false;
 	this->_overSized = false;
 	this->_recvBuffer = "";
 	this->_ipadd = "";
@@ -57,6 +60,12 @@ Client& Client::operator=(Client const &oth)
 	}
 	return (*this);
 }
+
+Client::~Client()
+{
+
+}
+
 
 Client::~Client()
 {
@@ -100,7 +109,15 @@ int Client::getBufferSize() const
 {
 	return _recvBuffer.size();
 }
+int Client::getBufferSize() const
+{
+	return _recvBuffer.size();
+}
 
+bool	Client::getIsOverSized() const
+{
+	return _overSized;
+}
 bool	Client::getIsOverSized() const
 {
 	return _overSized;
@@ -120,6 +137,7 @@ void	Client::setIpAdd(std::string ipadd)
 }
 
 // add to the current client buffer.
+void Client::appendBuffer(const char* data, ssize_t len)
 void Client::appendBuffer(const char* data, ssize_t len)
 {
 	_recvBuffer.append(data, len);
@@ -141,6 +159,7 @@ std::vector<std::string> Client::splitBuffer()
 	std::vector<std::string> lines;
 	size_t pos;
 	static const	size_t	maxMessageSize = 512;
+	static const	size_t	maxMessageSize = 512;
 	//Find the delimiter and extract the line, then erase it
 	while ((pos = _recvBuffer.find_first_of("\r\n")) != std::string::npos)
 	{
@@ -160,10 +179,15 @@ std::vector<std::string> Client::splitBuffer()
 		{
 			line = line.substr(0, maxMessageSize - 2); // keep only the first 512 bytes, discard the rest
 		}
+		if (line.size() > maxMessageSize) //Truncate, is a valid message,just too long
+		{
+			line = line.substr(0, maxMessageSize - 2); // keep only the first 512 bytes, discard the rest
+		}
 		if (!line.empty())
 		{
 			lines.push_back(line);
 		}
+		// check the size then check both \r && \n to erase it
 		// check the size then check both \r && \n to erase it
 		if (pos + 1 < _recvBuffer.size() && _recvBuffer[pos] == '\r' &&  _recvBuffer[pos + 1] == '\n' )
 		{
@@ -174,6 +198,12 @@ std::vector<std::string> Client::splitBuffer()
 		{
 			_recvBuffer.erase(0, pos + 1);
 		}
+	}
+	if (_recvBuffer.size() > maxMessageSize)
+	{
+		_recvBuffer.clear();
+		_overSized = true;
+		return lines;
 	}
 	if (_recvBuffer.size() > maxMessageSize)
 	{
