@@ -22,14 +22,17 @@ SRCS = src/main.cpp \
 	   src/Channel.cpp \
 	   src/Message.cpp
 
-OBJS = $(SRCS:.cpp=.o)
+OBJS = $(SRCS:src/%.cpp=objs/%.o)
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
-%.o: %.cpp
+objs:
+	@mkdir -p objs
+
+objs/%.o: src/%.cpp | objs
 	@$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 clean:
@@ -37,6 +40,7 @@ clean:
 
 fclean: clean
 	@rm -f $(NAME)
+	@rm -rf objs
 
 re: fclean all
 
