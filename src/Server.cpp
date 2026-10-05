@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/01 00:40:43 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 12:38:34 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,13 @@ int	Server::getSerSocketFd() const
 	return (_serSocketFd);
 }
 
-//Get client Fd from the server vector
+//Get client Fd from the server map
 Client* Server::getClient(int fd)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
+	std::map<int, Client>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
 	{
-		if (_clients[i].getFd() == fd)
-		{
-			return &_clients[i];
-		}
+		return &(it->second);
 	}
 	return NULL;
 }
@@ -116,14 +114,7 @@ void	Server::clearClients(int fd)
 			break ;
 		}
 	}
-	for (size_t i = 0; i < _clients.size(); i++) // remove client from the vector of clients
-	{
-		if (_clients[i].getFd() == fd)
-		{
-			_clients.erase(_clients.begin() + i);
-			break ;
-		}
-	}
+	_clients.erase(fd); // remove client from the map of clients
 }
 
 // accept new client, kernel checks for the process fd number empty
@@ -152,7 +143,7 @@ void	Server::acceptNewClient()
 
 	cli.setFd(incfd); // set the client file descriptor
 	cli.setIpAdd(inet_ntoa((cliadd.sin_addr))); // convert the ipaddress to string and set
-	_clients.push_back(cli); // add client to the vector of clients
+	_clients.insert(std::make_pair(incfd, cli)); // add client to the vector of clients
 	_fds.push_back(newPoll); // add the client socket to the pollfdl
 
 	std::cout << "Client <" << incfd << "> connection established" << std::endl;
