@@ -6,7 +6,7 @@
 /*   By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 12:59:14 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 13:55:44 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,4 @@ class Server
 		void	cmdInvite(Client& client, const Message& msg);
 		void	cmdTry(std::string cmd, Client& client, const Message& msg);
 		Client* getClient(int fd);
-
-
-		esto es un testeo de git
 };
