@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/05 21:19:07 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/06 12:20:18 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,27 +40,33 @@ class Channel
 		~Channel();
 
 	// For channel operators:
-	// Note: We assume that the client executing these is an operator. No checks.
 		void	addClient(Client& client, const std::string& key);
+		void	part(Client& client, const std::string& comment);
 		void	kick(Client& kicker, Client& toKick, const std::string& comment);
 		void	invite(Client& inviter, Client& toInvite);
+		void	topic(Client& caller, const std::string& newTopic, bool onlyView);
+		void	showMode(Client& caller);
+		void	setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
+	// Setters:
 		void	setTopic(const std::string& topic);
-		void	setInvite(const bool value);
+		void	setInviteOnly(const bool value);
 		void	setTopicLock(const bool value);
 		void	setKey(const std::string newkey);
 		void	setLimit(int limit);
 		void	setOperatorStatus(Client& setter, const std::string& nickname, bool setting);
-		void	removeClient(Client& client);
 
+	// Getters:
 		const std::string&			getTopic() const;
 		const std::vector<Client*>&	getOperators() const;
 		const std::vector<Client*>&	getClients() const;
 		const std::vector<Client*>&	getInvites() const;
 		const std::string& 			getName() const;
-
 		bool	isInviteOnly() const;
 
 
+		void	broadcast(const std::string& message, const Client* exclude = NULL);
+		
+		void	removeClient(Client& client);
 		/*
 		LUIS TO-DO:
 		1. hacer funcion de JOIN que al final es un wrapper para esta.
@@ -70,19 +76,7 @@ class Channel
 
 		*/
 
-
-		//TODO:
-		void	showMode(Client& caller);
-		void	setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
-		// set several modes at once?
-		//void	Channel::setModes(const std::string& modes)
-		// modify kick so no messages are printed when leave voluntarily
-		// create "broadcast" func that sends to channel only
-		void	broadcast(const std::string& message, const Client* exclude = NULL);
-		// figure out how to demand input from clients for passkeys
-		//
 };
-
 
 void	send_msg(Client& recvr, const std::string toSend);		//Añado send_msg al hpp para poder llamarla desde fuera
 
