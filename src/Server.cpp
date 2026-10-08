@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 22:15:04 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/08 16:16:10 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,12 @@ Server::Server()
 	_cmds["USER"] = &Server::cmdUser;
 	_cmds["PRIVMSG"] = &Server::cmdPrivmsg;
 	_cmds["QUIT"] = &Server::cmdQuit;
+	_cmds["JOIN"] = &Server::cmdJoin;
+	_cmds["PART"] = &Server::cmdPart;
+	_cmds["TOPIC"] = &Server::cmdTopic;
+	_cmds["MODE"] = &Server::cmdMode;
+	_cmds["KICK"] = &Server::cmdKick;
+	_cmds["INVITE"] = &Server::cmdInvite;
 }
 
 Server::~Server()
@@ -329,6 +335,220 @@ void	Server::cmdQuit(Client& client, const Message& msg)
 {
 	static_cast<void>(msg);
 	disconnectClient(client.getFd());
+}
+
+void	Server::cmdJoin(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam(), channels, keys;
+	std::string					act_key;
+	bool						found;
+
+	if (params.empty() || params[0].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	channels = splitCommas(params[0]);
+	if (params.size() > 1)
+		keys = splitCommas(params[1]);
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		found = false;
+		if (channels[i].empty() || channels[i][0] != '#')
+		{
+			send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), channels[i]));
+			continue;
+		}
+		channels[i].erase(0, 1);
+		for (size_t j = 0; j < _channel.size(); j++)
+		{
+			if (_channel[j].getName() == channels[i])
+			{
+				found = true;
+				if (client.inChannel(_channel[j]))
+					continue;
+				(i >= keys.size()) ? act_key = "" : act_key = keys[i];
+				_channel[j].addClient(client, act_key);
+				break;
+			}
+		}
+		if (!found)
+		{
+			(i >= keys.size()) ? act_key = "" : act_key = keys[i];
+			_channel.push_back(Channel(channels[i], act_key));
+			_channel.back().addClient(client, act_key);
+		}
+	}
+
+}
+
+void	Server::cmdPart(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam(), channels;
+	std::string					text = "";
+	bool						found;
+
+	if (params.empty() || params[0].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	channels = splitCommas(params[0]);
+	if (params.size() > 1 && !params[1].empty())
+		text = params[1];
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		found = false;
+		if (channels[i].empty() || channels[i][0] != '#')
+		{
+			send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), channels[i]));
+			continue;
+		}
+		channels[i].erase(0, 1);
+		for (size_t j = 0; j < _channel.size(); j++)
+		{
+			if (channels[i] == _channel[j].getName())
+			{
+				found = true;
+				_channel[j].part(client, text);
+				break;
+			}
+		}
+		if (!found)
+			send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), channels[i]));
+	}
+}
+
+void	Server::cmdTopic(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam(), channel;
+	std::string					text;
+	bool						found = false;
+
+
+	if (params.empty() || params[0].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	channel = splitCommas(params[0]);
+	if (channel.size() > 1 || channel[0].empty() || channel[0][0] != '#')
+		return (send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), params[0])));
+	channel[0].erase(0, 1);
+	(params.size() > 1 && !params[1].empty()) ? text = params[1] : text = "";
+	for (size_t i = 0; i < _channel.size(); i++)
+	{
+		if (channel[0] == _channel[i].getName())
+		{
+			found = true;
+			_channel[i].topic(client, text, params.size() == 1);
+			break;
+		}
+	}
+	if (!found)
+		send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), channel[0]));
+}
+
+void	Server::cmdMode(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam(), args;
+	std::string					chan, modestr = "";
+	bool						found = false;
+
+	if (params.empty() || params[0].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[0][0] != '#')
+		return (send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), params[0])));
+	chan = params[0].erase(0, 1);
+	for (size_t i = 0; i < _channel.size(); i++)
+	{
+
+		if (chan == _channel[i].getName())
+		{
+			found = true;
+			if (params.size() == 1)
+				_channel[i].showMode(client);
+			else
+			{
+				if (!params[1].empty())
+					modestr = params[1];
+				if (params.size() > 2)
+				{
+					for (size_t j = 2; j < params.size(); j++)
+						args.push_back(params[j]);
+				}
+				_channel[i].setMode(client, modestr, args);
+			}
+			break;
+		}
+	}
+	if (!found)
+		send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), chan));
+}
+
+void	Server::cmdKick(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam();
+	std::string					chan, nick, text = "";
+	bool						chan_found = false, nick_found = false;
+
+	if (params.empty() || params.size() < 2 || params[1].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[0].empty() || params[0][0] != '#')
+		return (send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), params[0])));
+	chan = params[0].erase(0,1);
+	if (!params[1].empty())
+		nick = params[1];
+	if (params.size() >= 3)
+		text = params[2];
+	for (size_t i = 0; i < _channel.size(); i++)
+	{
+		if (chan == _channel[i].getName())
+		{
+			chan_found = true;
+			for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+			{
+				if (it->second.getNick() == nick)
+				{
+					nick_found = true;
+					_channel[i].kick(client, it->second, text);
+					break;
+				}
+			}
+		}
+	}
+	if (!chan_found)
+		return(send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), chan)));
+	if (!nick_found)
+		return(send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), nick)));
+
+
+}
+
+void	Server::cmdInvite(Client& client, const Message& msg)
+{
+	std::vector<std::string>	params = msg.getParam();
+	std::string					chan, nick;
+	bool						chan_found = false, nick_found = false;
+
+	if (params.empty() || params.size() < 2 || params[0].empty() || params[1].empty())
+		return (send_msg(client, ERR_NOTENOUGHPARAM(client.nickForReplay())));
+	if (params[1][0] != '#')
+		return (send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), params[1])));
+	chan = params[1].erase(0, 1);
+	nick = params[0];
+	for (size_t i = 0; i < _channel.size(); i++)
+	{
+		if (chan == _channel[i].getName())
+		{
+			chan_found = true;
+			for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+			{
+				if (it->second.getNick() == nick)
+				{
+					nick_found = true;
+					_channel[i].invite(client, it->second);
+					break;
+				}
+			}
+			break;
+		}
+	}
+	if (!chan_found)
+		return (send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), chan)));
+	if (!nick_found)
+		return (send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), nick)));
 }
 
 static bool	accessCmd(std::string cmd)

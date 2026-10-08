@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/05 17:54:59 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/08 16:13:30 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@
 
 #define ERR_NOTOPERATOR(channelname) (":ircserv 482 #" + channelname + " :You're not a channel operator" + CRLF)
 
-#define ERR_NOSUCHNICK(channelname, name) (":ircserv 401 #" + channelname + " " + name + " :No such nick/channel" + CRLF )
+#define ERR_NOSUCHNICK(user, nick) (":ircserv 401 " + user + " " + nick + " :No such nick/channel" + CRLF )
 
 #define ERR_INCORPASS(nickname) (":ircserv 464 " + nickname + " :Password incorrect !" + CRLF )
 

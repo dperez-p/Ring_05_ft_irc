@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: dperez-p <dperez-p@student.42malaga.com    +#+  +:+       +#+         #
+#    By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/09/19 18:36:46 by dperez-p          #+#    #+#              #
-#    Updated: 2026/10/08 10:13:35 by dperez-p         ###   ########.fr        #
+#    Updated: 2026/10/05 22:31:21 by lanton-m         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
