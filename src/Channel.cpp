@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/06 12:38:39 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/08 14:48:26 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,6 +214,7 @@ void	Channel::invite(Client& inviter, Client& toInvite)
 		_invited.push_back(&toInvite);
 // Reply to inviter
 	send_msg(inviter, RPL_INVITING(inviter.getNick(), toInvite.getNick(), _name));
+
 // Message to invitee
 	std::string inviteMsg = ":" + inviter.getPrefix() + " INVITE " + toInvite.getNick() + " #" + _name + CRLF;
 	send_msg(toInvite, inviteMsg);
@@ -236,7 +237,6 @@ void	Channel::topic(Client& caller, const std::string& newTopic, bool onlyView)
 		caller.getPrefix() + " TOPIC #" + _name + " :" + newTopic + CRLF;
 		return broadcast(topicChangeMsg);
 	}
-	
 	if (!_topic.empty())
 		send_msg(caller, RPL_TOPICIS(caller.getNick(), _name, _topic));
 	else
@@ -270,15 +270,15 @@ void	Channel::showMode(Client& caller)
 	send_msg(caller, RPL_CHANNELMODEIS(caller.getNick(), _name, modes, values));
 }
 
-void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<std::string> args)
+void	Channel::setMode(Client& caller, const std::string& modestr, const std::vector<std::string>& args)
 {
 	if (search(caller.getNick(), _operators) == -1)
-		send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
+		return send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
 
-	std::vector<std::string>::iterator it = args.begin();
+	std::vector<std::string>::const_iterator it = args.begin();
 
 	bool	addMode = true;
-	for (size_t i = 0; i < modestr.length() && it != args.end(); i++)
+	for (size_t i = 0; i < modestr.length(); i++)
 	{
 		if (modestr.at(i) == '+')
 		{
@@ -298,21 +298,29 @@ void	Channel::setMode(Client& caller, const std::string& modestr, std::vector<st
 		}
 		else if (modestr.at(i) == 'k')
 		{
-			this->setKey((addMode == true ? *it++ : ""));
+			if (it == args.end())
+				return send_msg(caller, ERR_NOTENOUGHPARAM(caller.getNick()));
+			if (addMode)
+				this->setKey(*it);
+			else if (_key == *it)
+				this->setKey("");
+			it++;
 		}
 		else if (modestr.at(i) == 'o')
 		{
+			if (it == args.end())
+				return send_msg(caller, ERR_NOTENOUGHPARAM(caller.getNick()));
 			this->setOperatorStatus(caller, *it++, addMode);
 		}
 		else if (modestr.at(i) == 'l')
 		{
-			int value = std::atoi((*it++).c_str());
-			this->setLimit((addMode == true ? value : 0));
+			if (addMode && it == args.end())
+				return send_msg(caller, ERR_NOTENOUGHPARAM(caller.getNick()));
+			int value = (addMode == true ? std::atoi((*it++).c_str()) : 0);
+			this->setLimit(value);
 		}
 		else
-		{
-			send_msg(caller, ERR_UNKNOWNMODE(caller.getNick(), _name, modestr.at(i)));
-		}
+			return send_msg(caller, ERR_UNKNOWNMODE(caller.getNick(), _name, modestr.at(i)));
 	}
 }
 
