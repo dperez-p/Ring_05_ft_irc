@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 22:59:59 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/06 12:20:18 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/08 14:49:01 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Channel
 		void	invite(Client& inviter, Client& toInvite);
 		void	topic(Client& caller, const std::string& newTopic, bool onlyView);
 		void	showMode(Client& caller);
-		void	setMode(Client& caller, const std::string& modestr, std::vector<std::string> args);
+		void	setMode(Client& caller, const std::string& modestr, const std::vector<std::string>& args);
 	// Setters:
 		void	setTopic(const std::string& topic);
 		void	setInviteOnly(const bool value);
