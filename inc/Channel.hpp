@@ -65,16 +65,8 @@ class Channel
 
 
 		void	broadcast(const std::string& message, const Client* exclude = NULL);
-		
-		void	removeClient(Client& client);
-		/*
-		LUIS TO-DO:
-		1. hacer funcion de JOIN que al final es un wrapper para esta.
-			- Comprueba si el canal existe, si no, lo crea y llamas mi addClient que convierte al cliente en operador por defecto.
-			- Si el cliente mete un key como parametro, pasaselo a mi función.
-		2.
 
-		*/
+		void	removeClient(Client& client);
 
 };
 

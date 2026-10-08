@@ -14,6 +14,37 @@ Para Luis: Haz una función PART para salirse de varios channels a la vez con tu
 Acabo de hacer la que te saca de 1 solo channel para que la uses.  Tambien tengo hecha la de TOPIC pero
 necesito que hagas una para esa también que le pase los parametros.  PD: Me salgo de 42 y me hago un OnlyFans o qué??? 😏
 
+Para Rafa: Querido Rafa, ante tus continuas y lamentables ideas de que me haga suscriptor de tu only, solo puedo responderte los siguientes bugs q aparecen en ese que aclamas como un código decente.
+Que duro tener un servidor para comunicarnos y q no abras tu corazón a la palabra, te amo.
+COMANDOS PROBADOS Y WORKING
+
+USER [x]
+PASS [x]
+NICK [x]
+JOIN [x]
+MODE: [x]
++i: [x]
+-i: [x]
++o: [x]
+-o:	[x]
++t:	[x]
+-t: [x]
++k: []  
+"falta un espacio en la respuesta de mode showmode  :ircserv 324 MARIA #cristina +ktu pu"
+"parsear la contraseña quedandonos con el primer parámetro como contraseña antes del espacio"
+-k: [x]
++l: [x]
+-l: [x]
+PART [] "si eres el único operador dejar a otro como operador"
+ 
+KICK [x]
+
+INVITE  [x]
+
+
+
+
+
 TODO Luis (resumido): Funciones que utilizan las mias
 - JOIN      [x]
 - KICK      [x]

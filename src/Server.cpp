@@ -457,7 +457,7 @@ void	Server::cmdMode(Client& client, const Message& msg)
 		if (chan == _channel[i].getName())
 		{
 			found = true;
-			if (params.size() == 1)
+			if (params.size() == 1 || params[1].empty())
 				_channel[i].showMode(client);
 			else
 			{
