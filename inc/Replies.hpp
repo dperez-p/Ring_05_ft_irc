@@ -89,5 +89,5 @@
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
 
-#define PRIVMSG_MESSAGE(prefix, target, text)	(":" + prefix + " PRIVMSG " + target + " :" + text + CRLF)
+#define PRIVMSG_MESSAGE(prefix, target, text)	(":" + prefix + " PRIVMSG #" + target + " :" + text + CRLF)
 

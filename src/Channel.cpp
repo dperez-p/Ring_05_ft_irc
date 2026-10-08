@@ -128,7 +128,7 @@ void	Channel::addClient(Client& client, const std::string& key)
 		_operators.push_back(&client);
 	_clients.push_back(&client);
 // broadcast JOIN message
-	std::string joinMsg = ":" + client.getPrefix() + " JOIN :" + _name + "\r\n";
+	std::string joinMsg = ":" + client.getPrefix() + " JOIN #" + _name + "\r\n";
 	broadcast(joinMsg);
 // Send Topic Reply (RPL_TOPIC 332 or RPL_NOTOPIC 331)
 	if (!_topic.empty())
@@ -155,18 +155,18 @@ void	Channel::part(Client& client, const std::string& comment)
 	int i = search(client.getNick(), _clients);
 	if (i == -1)
 		return send_msg(client, ERR_NOTONCHANNEL(client.getNick(), _name));
-	
+
 	_clients.erase(_clients.begin() + i);
-	
+
 	i = search(client.getNick(), _operators);
 	if (i != -1)
 		_operators.erase(_operators.begin() + i);
-	
+
 	i = search(client.getNick(), _invited);
 	if (i != -1)
 		_invited.erase(_invited.begin() + i);
-	
-	std::string partMsg = 
+
+	std::string partMsg =
 	":" + client.getPrefix() + " PART #" + _name + " :" + comment + CRLF;
 	broadcast(partMsg);
 }
@@ -225,10 +225,10 @@ void	Channel::topic(Client& caller, const std::string& newTopic, bool onlyView)
 {
 	if (search(caller.getNick(), _clients) == -1)
 		return send_msg(caller, ERR_NOTONCHANNEL(caller.getNick(), _name));
-	
+
 	if (_protectedTopic && search(caller.getNick(), _operators) == -1)
 		return send_msg(caller, ERR_CHANOPRIVSNEEDED(caller.getNick(), _name));
-	
+
 	if (!onlyView)
 	{
 		_topic = newTopic;
