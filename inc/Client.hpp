@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/08 17:14:16 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ class Client
 	bool							getIsOverSized() const;
 
 	/***************************Setter******************************* */
-	void								appendBuffer(const char* data, ssize_t len);
+	void							appendBuffer(const char* data, ssize_t len);
 	void							setBuffer(std::string bytes);
 	void							setLogged(bool state);
 	void							setNick(const std::string& nickname);
