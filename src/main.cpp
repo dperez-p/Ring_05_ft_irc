@@ -31,6 +31,14 @@ static bool validPort(const std::string &port)
 	return (portNum >= 1024 && portNum <= 65535); // check if the number are between a range (true) or not (false)
 }
 
+static bool	isSpace(const std::string &str)
+{
+	size_t pos = str.find_first_of(" \t\n\r\v\f");
+	if (pos != std::string::npos)
+		return true;
+	return false;
+}
+
 int	main(int ac, char **av)
 {
 	if (ac != 3)
@@ -44,11 +52,17 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
-		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
+		if (!validPort(av[1]))
 		{
-			std::cout << "Invalid port number / Password." << std::endl;
+			std::cout << "Invalid port number." << std::endl;
 			return 1;
 		}
+		if (!*av[2] || std::strlen(av[2]) > 16 || isSpace(av[2]))
+		{
+			std::cout << "Invalid password." << std::endl;
+			return 1;
+		}
+		
 		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 	}
 	catch(const std::exception& e)
