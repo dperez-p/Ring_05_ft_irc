@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/09 12:53:44 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/09 16:54:14 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -306,9 +306,14 @@ void	Channel::setMode(Client& caller, const std::string& modestr, const std::vec
 		{
 			if (it == args.end())
 				return send_msg(caller, ERR_NOTENOUGHPARAM(caller.getNick()));
+			
+			std::stringstream ss(*it);
+			std::string firstWord;
+			ss >> firstWord;
+
 			if (addMode)
-				this->setKey(*it);
-			else if (_key == *it)
+				this->setKey(firstWord);
+			else if (_key == firstWord)
 				this->setKey("");
 			it++;
 		}
