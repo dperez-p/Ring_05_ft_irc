@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/08 16:16:10 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/09 16:43:29 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,12 @@ void	Server::closeFds()
 {
 	for (std::map<int, Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		std::cout << "Client <" << it->second.getFd() << " Disconected." << std::endl;
+		std::cout << "Client <" << it->second.getFd() << " disconnected." << std::endl;
 		close(it->second.getFd());
 	}
 	if (_serSocketFd != -1) // close the server socket.
 	{
-		std::cout << "Server " << _serSocketFd << "Disconected." << std::endl;
+		std::cout << "Server " << _serSocketFd << " disconnected." << std::endl;
 		close(_serSocketFd);
 	}
 }

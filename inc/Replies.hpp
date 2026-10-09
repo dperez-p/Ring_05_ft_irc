@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/08 16:13:30 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/09 16:42:32 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 
 #define RPL_JOINMSG(hostname, ipaddress, channelname) (":" + hostname + "@" + ipaddress + " JOIN #" + channelname + CRLF)
 
-#define RPL_NAMREPLY(nickname, channelname, clientslist) (":ircserv 353 " + nickname + " @ #" + channelname + " :" + clientslist + CRLF)
+#define RPL_NAMREPLY(nickname, channelname, clientslist) (":ircserv 353 " + nickname + " = #" + channelname + " :" + clientslist + CRLF)
 
 #define RPL_ENDOFNAMES(nickname, channelname) (":ircserv 366 " + nickname + " #" + channelname + " :END of /NAMES list" + CRLF)
 
