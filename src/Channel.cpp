@@ -6,7 +6,7 @@
 /*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:52 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/09 16:54:14 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/09 17:24:38 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,7 +186,7 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 
 	i = search(toKick.getNick(), _clients);
 	if (i == -1)
-		return send_msg(toKick, ERR_USERNOTINCHANNEL(kicker.getNick(), toKick.getNick(), _name));
+		return send_msg(kicker, ERR_USERNOTINCHANNEL(kicker.getNick(), toKick.getNick(), _name));
 	_clients.erase(_clients.begin() + i);
 
 	i = search(toKick.getNick(), _invited);
@@ -203,6 +203,7 @@ void	Channel::kick(Client& kicker, Client& toKick, const std::string& comment)
 	std::string kickMsg =
 	":" + kicker.getPrefix() + " KICK #" + _name + " " + toKick.getNick() + " :" + comment + CRLF;
 	broadcast(kickMsg);
+	send_msg(toKick, kickMsg);
 }
 
 void	Channel::invite(Client& inviter, Client& toInvite)
