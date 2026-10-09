@@ -20,6 +20,7 @@ Message::Message(std::string line)
     std::string                     tmp;
     std::size_t                     i = 0;
 
+    line.erase(0, line.find_first_not_of(" \t"));
     pos = line.find(' ');
     _cmd = line.substr(0, pos);
     while (i < _cmd.size())
