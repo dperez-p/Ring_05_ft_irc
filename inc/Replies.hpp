@@ -65,7 +65,7 @@
 
 #define ERR_INCORPASS(nickname) (":ircserv 464 " + nickname + " :Password incorrect !" + CRLF )
 
-#define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister !" + CRLF )
+#define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister!" + CRLF )
 
 #define ERR_NONICKNAME(nickname) (":ircserv 431 " + nickname + " :No nickname given" + CRLF )
 
