@@ -189,12 +189,14 @@ void	Server::tryRegister(Client& client)
 	if (!wasRegistered && client.getIsRegistered())
 		send_msg(client, RPL_CONNECTED(client.nickForReplay()));
 }
+
 static bool specialchar(char c)
 {
 	std::string valids = "[]\\`^_{}|";
 
 	return (valids.find(c) != std::string::npos);
 }
+
 bool	Server::nickInUse(std::string nick)
 {
 	for (std::map<int, Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
@@ -213,6 +215,7 @@ bool	Server::nickInUse(std::string nick)
 	}
 	return false;
 }
+
 static bool	validNick(std::string nick)
 {
 
@@ -228,6 +231,7 @@ static bool	validNick(std::string nick)
 	}
 	return true;
 }
+
 void	Server::cmdNick(Client& client, const Message& msg)
 {
 	std::vector<std::string> params = msg.getParam();
@@ -405,6 +409,8 @@ void	Server::cmdPart(Client& client, const Message& msg)
 			{
 				found = true;
 				_channel[j].part(client, text);
+				if (_channel[j].getClients().empty())
+					_channel.erase(_channel.begin() + j);
 				break;
 			}
 		}
@@ -503,6 +509,8 @@ void	Server::cmdKick(Client& client, const Message& msg)
 				{
 					nick_found = true;
 					_channel[i].kick(client, it->second, text);
+					if (_channel[i].getClients().empty())
+						_channel.erase(_channel.begin() + i);
 					break;
 				}
 			}
@@ -512,8 +520,6 @@ void	Server::cmdKick(Client& client, const Message& msg)
 		return(send_msg(client, ERR_CHANNELNOTFOUND(client.nickForReplay(), chan)));
 	if (!nick_found)
 		return(send_msg(client, ERR_NOSUCHNICK(client.nickForReplay(), nick)));
-
-
 }
 
 void	Server::cmdInvite(Client& client, const Message& msg)
