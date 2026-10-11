@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/09 16:42:32 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/11 12:47:48 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (":ircserv 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)
 
-#define RPL_CHANNELMODEIS(nickname, channelname, modes, values) (":ircserv 324 " + nickname + " #" + channelname + " " + modes + values + CRLF)
+#define RPL_CHANNELMODEIS(nickname, channelname, modes, values) (":ircserv 324 " + nickname + " #" + channelname + " " + modes + " " + values + CRLF)
 
 #define RPL_CHANGEMODE(hostname, channelname, mode, arguments) (":" + hostname + " MODE #" + channelname + " " + mode + " " + arguments + CRLF)
 
@@ -38,7 +38,9 @@
 
 #define RPL_INVITING(client_nick, invited_nick, channel) (":ircserv 341 " + client_nick + " " + invited_nick + " #" + channel + CRLF)
 
+#define PRIVMSG_CHANNEL(prefix, channel, text)	(":" + prefix + " PRIVMSG #" + channel + " :" + text + CRLF)
 
+#define PRIVMSG_USER(sender_nick, receiver_nick, text) (":" + sender_nick + " PRIVMSG " + receiver_nick + " :" + text + CRLF)
 
 //-----------ERRORS----------------------------
 #define ERR_NEEDMODEPARM(channelname, mode) (":ircserv 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
@@ -88,6 +90,4 @@
 #define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " #" + channel + "You're not on that channel" + CRLF)
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
-
-#define PRIVMSG_MESSAGE(prefix, target, text)	(":" + prefix + " PRIVMSG #" + target + " :" + text + CRLF)
 

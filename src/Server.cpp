@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:08:52 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/10/09 16:43:29 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/11 12:49:23 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,7 +287,7 @@ bool	Server::fndUser(Client& client, std::vector<std::string>& params, std::stri
 	{
 		if (it->second.getNick() == target)
 		{
-			send_msg(it->second, PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]));
+			send_msg(it->second, PRIVMSG_USER(client.getNick(), target, params[1]));
 			return true;
 		}
 	}
@@ -305,7 +305,7 @@ bool	Server::fndChannel(Client& client, std::vector<std::string>& params, std::s
 		{
 			if (!client.inChannel(*it))
 				return false;
-			it->broadcast(PRIVMSG_MESSAGE(client.getPrefix(), target, params[1]), &client);
+			it->broadcast(PRIVMSG_CHANNEL(client.getPrefix(), target, params[1]), &client);
 			return true;
 		}
 	}
