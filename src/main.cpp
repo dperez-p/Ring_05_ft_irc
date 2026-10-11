@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 12:11:34 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:49:53 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 12:54:16 by dperez-p         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,14 @@ static bool validPort(const std::string &port)
 	return (portNum >= 1024 && portNum <= 65535); // check if the number are between a range (true) or not (false)
 }
 
+static bool	isSpace(const std::string &str)
+{
+	size_t pos = str.find_first_of(" \t\n\r\v\f");
+	if (pos != std::string::npos)
+		return true;
+	return false;
+}
+
 int	main(int ac, char **av)
 {
 	if (ac != 3)
@@ -44,12 +52,17 @@ int	main(int ac, char **av)
 	{
 		signal(SIGINT, Server::signalHandler); //catch the signal (ctrl + C)
 		signal(SIGQUIT, Server::signalHandler); //catch the signal (ctrl + \)
-		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
-		if (!validPort(av[1]) || !*av[2] || std::strlen(av[2]) > 16)
+		if (!validPort(av[1]))
 		{
-			std::cout << "Invalid port number / Password." << std::endl;
+			std::cout << "Invalid port number." << std::endl;
 			return 1;
 		}
+		if (!*av[2] || std::strlen(av[2]) > 16 || isSpace(av[2]))
+		{
+			std::cout << "Invalid password." << std::endl;
+			return 1;
+		}
+		
 		ser.serverInit(std::atoi(av[1]), av[2]); //initialize the server
 	}
 	catch(const std::exception& e)

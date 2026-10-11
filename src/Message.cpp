@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/27 13:27:14 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/09/29 22:48:51 by lanton-m         ###   ########.fr       */
+/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,16 @@ Message::Message(std::string line)
     std::vector<std::string>        args;
     std::size_t                     pos;
     std::string                     tmp;
-    int                             i = 0;
+    std::size_t                     i = 0;
 
+    line.erase(0, line.find_first_not_of(" \t"));
     pos = line.find(' ');
     _cmd = line.substr(0, pos);
     while (i < _cmd.size())
-        _cmd[i] = std::toupper(static_cast<unsigned char>(_cmd[i++]));
+    {
+        _cmd[i] = std::toupper(static_cast<unsigned char>(_cmd[i]));
+        ++i;
+    }
     while (pos != std::string::npos)
     {
         line.erase(0, pos + 1);

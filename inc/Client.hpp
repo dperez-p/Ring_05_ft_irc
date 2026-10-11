@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:47:46 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:14 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/08 17:14:16 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,16 @@
 class	Channel;
 class Client
 {
-  private:
-    std::string	_nickname; // user nickname
-    std::string	_username; // username
-    bool		_isOperator; // is operator (mod for the channel)
-    bool		_registered; // is registered
-    bool		_logged; // is logged
-    bool		_overSized; // control if the buffer was oversized
-    int			_fd;	//client file descriptor
-    std::string _ipadd; //client ip address
-    std::string _recvBuffer; // client buffer
+ private:
+	std::string	_nickname; // user nickname
+	std::string	_username; // username
+	bool		_isOperator; // is operator (mod for the channel)
+	bool		_registered; // is registered
+	bool		_logged; // is logged
+	bool		_overSized; // control if the buffer was oversized
+	int			_fd;	//client file descriptor
+	std::string _ipadd; //client ip address
+	std::string _recvBuffer; // client buffer
 
 	public:
 		Client(); // default constr
@@ -51,23 +51,20 @@ class Client
   	/************************Getter*************************** */
 	int					getFd() const; // getter for fd
 	int					getBufferSize() const;
-
-	
-	/************************Getter*************************** */
-	int								getFd() const; // getter for fd
-  int					      ºgetBufferSize() const;
-	std::string 					getBuffer() const;
+	const std::string&			getBuffer() const;
 	std::string						getNick() const;
 	std::string						getPrefix() const;
 	bool							getIsLogged() const;
 	bool							getIsRegistered() const;
-  bool			      	getIsOverSized() const;
+	bool							getIsOverSized() const;
 
 	/***************************Setter******************************* */
-  void              appendBuffer(const char* data, ssize_t len);
+	void							appendBuffer(const char* data, ssize_t len);
 	void							setBuffer(std::string bytes);
 	void							setLogged(bool state);
 	void							setNick(const std::string& nickname);
+	void							setUser(const std::string& username);
+	void							setRegistered();
 
 	/***************************Parsing****************************** */
 	std::vector<std::string>		splitBuffer();
@@ -77,7 +74,7 @@ class Client
 	bool		inChannel(const Channel& channel) const;
 	bool		isInvited(const Channel& channel) const;
 	bool		isRegistered() const;
-	std::string	nickForReplay() const
+	std::string	nickForReplay() const;
 };
 
 

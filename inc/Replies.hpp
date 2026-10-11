@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Replies.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ramarti2 <ramarti2@student.42malaga.com>   +#+  +:+       +#+        */
+/*   By: ramarti2 <ramarti2@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/29 23:00:35 by lanton-m          #+#    #+#             */
-/*   Updated: 2026/10/01 13:14:03 by ramarti2         ###   ########.fr       */
+/*   Updated: 2026/10/11 12:47:48 by ramarti2         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 #define RPL_CREATIONTIME(nickname, channelname, creationtime) (":ircserv 329 " + nickname + " #" + channelname + " " + creationtime + CRLF)
 
-#define RPL_CHANNELMODEIS(nickname, channelname, modes, values) (":ircserv 324 " + nickname + " #" + channelname + " " + modes + values + CRLF)
+#define RPL_CHANNELMODEIS(nickname, channelname, modes, values) (":ircserv 324 " + nickname + " #" + channelname + " " + modes + " " + values + CRLF)
 
 #define RPL_CHANGEMODE(hostname, channelname, mode, arguments) (":" + hostname + " MODE #" + channelname + " " + mode + " " + arguments + CRLF)
 
@@ -28,7 +28,7 @@
 
 #define RPL_JOINMSG(hostname, ipaddress, channelname) (":" + hostname + "@" + ipaddress + " JOIN #" + channelname + CRLF)
 
-#define RPL_NAMREPLY(nickname, channelname, clientslist) (":ircserv 353 " + nickname + " @ #" + channelname + " :" + clientslist + CRLF)
+#define RPL_NAMREPLY(nickname, channelname, clientslist) (":ircserv 353 " + nickname + " = #" + channelname + " :" + clientslist + CRLF)
 
 #define RPL_ENDOFNAMES(nickname, channelname) (":ircserv 366 " + nickname + " #" + channelname + " :END of /NAMES list" + CRLF)
 
@@ -38,7 +38,9 @@
 
 #define RPL_INVITING(client_nick, invited_nick, channel) (":ircserv 341 " + client_nick + " " + invited_nick + " #" + channel + CRLF)
 
+#define PRIVMSG_CHANNEL(prefix, channel, text)	(":" + prefix + " PRIVMSG #" + channel + " :" + text + CRLF)
 
+#define PRIVMSG_USER(sender_nick, receiver_nick, text) (":" + sender_nick + " PRIVMSG " + receiver_nick + " :" + text + CRLF)
 
 //-----------ERRORS----------------------------
 #define ERR_NEEDMODEPARM(channelname, mode) (":ircserv 696 #" + channelname + " * You must specify a parameter for the key mode. " + mode + CRLF)
@@ -61,11 +63,11 @@
 
 #define ERR_NOTOPERATOR(channelname) (":ircserv 482 #" + channelname + " :You're not a channel operator" + CRLF)
 
-#define ERR_NOSUCHNICK(channelname, name) (":ircserv 401 #" + channelname + " " + name + " :No such nick/channel" + CRLF )
+#define ERR_NOSUCHNICK(user, nick) (":ircserv 401 " + user + " " + nick + " :No such nick/channel" + CRLF )
 
 #define ERR_INCORPASS(nickname) (":ircserv 464 " + nickname + " :Password incorrect !" + CRLF )
 
-#define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister !" + CRLF )
+#define ERR_ALREADYREGISTERED(nickname) (":ircserv 462 " + nickname + " :You may not reregister!" + CRLF )
 
 #define ERR_NONICKNAME(nickname) (":ircserv 431 " + nickname + " :No nickname given" + CRLF )
 
@@ -77,6 +79,10 @@
 
 #define ERR_CMDNOTFOUND(nickname, command) (":ircserv 421 " + nickname + " " + command + " :Unknown command" + CRLF)
 
+#define ERR_NORECIPIENT(nickname, command) (":ircserv 411 " + nickname + " " + command + " :No recipient given (" + command + ")" + CRLF)
+
+#define ERR_NOTEXTTOSEND(nickname) (":ircserv 412 " + nickname + " :No text to send" + CRLF)
+
 #define ERR_USERNOTINCHANNEL(client_nick, nickname, channel) (":ircserv 441 " + client_nick + " " + nickname + " #" + channel + ":They aren't on that channel" + CRLF)
 
 #define ERR_USERONCHANNEL(client_nick, invited_nick, channel) (":ircserv 443 " + client_nick + " " + invited_nick + " #" + channel + " :is already on channel" + CRLF)
@@ -84,6 +90,4 @@
 #define ERR_NOTONCHANNEL(nickname, channel) (":ircserv 442 " + nickname + " #" + channel + "You're not on that channel" + CRLF)
 
 #define ERR_CHANOPRIVSNEEDED(nickname, channel) (":ircserv 482 " + nickname + " #" + channel + " :You're not channel operator" + CRLF)
-
-
 

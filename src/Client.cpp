@@ -6,11 +6,12 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 11:14:48 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 13:32:17 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 17:42:48 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Client.hpp"
+#include "../inc/Channel.hpp"
 
 // Default constructor
 Client::Client()
@@ -135,6 +136,16 @@ void	Client::setNick(const std::string& nickname)
 	_nickname = nickname;
 }
 
+void	Client::setUser(const std::string& username)
+{
+	_username = username;
+}
+
+void	Client::setRegistered()
+{
+	_registered = (_logged && !_nickname.empty() && !_username.empty());
+}
+
 // split the buffer and erase it
 std::vector<std::string> Client::splitBuffer()
 {
@@ -227,7 +238,7 @@ bool	Client::isInvited(const Channel& channel) const
 
 bool	Client::isRegistered() const
 {
-	return (!_nickname.empty() && !_username.empty() && _logged);
+	return _registered;
 }
 
 std::string	Client::nickForReplay() const

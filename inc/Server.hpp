@@ -6,7 +6,7 @@
 /*   By: lanton-m <lanton-m@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/10 10:54:49 by dperez-p          #+#    #+#             */
-/*   Updated: 2026/09/24 12:48:10 by dperez-p         ###   ########.fr       */
+/*   Updated: 2026/10/05 22:14:02 by lanton-m         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,13 +43,12 @@ class Server
 		int	_port; // server port
 		int	_serSocketFd; // server socket file descriptor
 		static bool	_signal; // boolean for signal, static to create one for the class and not for each object
-		std::vector<Client> _clients; // vector of clients
+		std::map<int, Client> _clients; // map of clients
 		std::vector<Channel> _channel; // vector of channels
 		std::vector<struct pollfd> _fds; // vector of pollfd
 		std::string _password;
 		typedef void (Server::*CmdFunc)(Client&, const Message&);	// alias for the map
 		std::map<std::string, void (Server::*)(Client&, const Message&)>	_cmds;
-
 	public:
 		Server();
 		Server(Server const &oth);
@@ -68,12 +67,13 @@ class Server
 		void	clearClients(int fd); // clear clients
 
 		// GETTERS
-		int					    getSerSocketFd() const;
-		Client* 			  getClient(int fd);
+		int					getSerSocketFd() const;
+		Client*				getClient(int fd);
 		std::string			getPass()	const;
 
 		//---------EXECUTION--------
 		void			executeCommand(Client& client, const Message& msg);
+		void			tryRegister(Client& client);
 		bool			nickInUse(std::string nick);
 
 		//-----------CMDS----------------
@@ -88,6 +88,7 @@ class Server
 		void	cmdKick(Client& client, const Message& msg);
 		void	cmdMode(Client& client, const Message& msg);
 		void	cmdInvite(Client& client, const Message& msg);
-		void	cmdTry(std::string cmd, Client& client, const Message& msg);
-		Client* getClient(int fd);
+
+		bool	fndUser(Client& client, std::vector<std::string>& params, std::string& target);
+		bool	fndChannel(Client& client, std::vector<std::string>& params, std::string& target);
 };
